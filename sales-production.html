@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fusion Leather World — Sales &amp; Production Report</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --hide:#ECE3D2; --hide-deep:#DCCFB6; --card:#FBF8F1; --ink:#2B2118;
+  --ink-soft:#6E6358; --rust:#A5512E; --rust-deep:#823C20; --vat:#6E7A52;
+  --stitch:#C7B79B; --pos:#5C7A4A; --neg:#A5512E;
+}
+*{box-sizing:border-box;}
+body{margin:0;background:
+  radial-gradient(circle at 1px 1px, rgba(43,33,24,0.035) 1px, transparent 1.6px) 0 0/14px 14px,
+  var(--hide); color:var(--ink); font-family:'Inter',system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;}
+.wrap{max-width:760px;margin:0 auto;padding:28px 16px 60px;}
+header{position:relative;padding:30px 24px 26px;background:var(--card);border-radius:4px;
+  box-shadow:0 1px 0 rgba(43,33,24,0.06),0 18px 40px -28px rgba(43,33,24,0.55);margin-bottom:22px;overflow:hidden;}
+header::before{content:"";position:absolute;inset:0;border:1px solid var(--hide-deep);border-radius:4px;}
+header::after{content:"";position:absolute;left:12px;top:12px;right:12px;bottom:12px;
+  border:1.5px dashed var(--stitch);border-radius:2px;}
+.eyebrow{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--rust);margin:0 0 10px;}
+h1{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(26px,7vw,38px);line-height:1.08;margin:0 0 8px;letter-spacing:-.01em;}
+header p{margin:0;color:var(--ink-soft);font-size:14px;line-height:1.55;}
+
+.switcher{margin:0 0 20px;position:relative;}
+.switcher label{display:block;font-family:'IBM Plex Mono',monospace;font-size:10.5px;
+  letter-spacing:.18em;text-transform:uppercase;color:var(--ink-soft);margin:0 0 8px 2px;}
+.switcher select{width:100%;font-family:'Fraunces',serif;font-weight:600;font-size:15px;
+  padding:14px 40px 14px 14px;border-radius:4px;border:1px solid var(--hide-deep);
+  background:var(--card);color:var(--ink);appearance:none;cursor:pointer;}
+.switcher::after{content:"";position:absolute;right:18px;bottom:17px;width:10px;height:10px;
+  border-right:2px solid var(--rust);border-bottom:2px solid var(--rust);transform:rotate(45deg);pointer-events:none;}
+
+.page{display:none;}
+.page.active{display:block;}
+
+.kpi-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:22px;}
+.kpi{background:var(--card);border:1px solid var(--hide-deep);border-radius:4px;padding:14px 14px 12px;}
+.kpi .label{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--ink-soft);margin:0 0 6px;}
+.kpi .value{font-family:'Fraunces',serif;font-weight:600;font-size:19px;line-height:1.2;margin:0;}
+.kpi .sub{font-size:12px;color:var(--ink-soft);margin:4px 0 0;}
+.kpi .sub .pos{color:var(--pos);font-weight:600;}
+.kpi .sub .neg{color:var(--neg);font-weight:600;}
+.kpi.wide{grid-column:1 / -1;}
+
+.section-label{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--ink-soft);margin:28px 0 10px 2px;display:flex;align-items:center;gap:10px;}
+.section-label::after{content:"";flex:1;height:1px;background:var(--hide-deep);}
+
+details{background:var(--card);border:1px solid var(--hide-deep);border-radius:4px;margin-bottom:10px;overflow:hidden;}
+details summary{list-style:none;cursor:pointer;padding:14px 16px;display:flex;justify-content:space-between;
+  align-items:center;font-family:'Fraunces',serif;font-weight:600;font-size:15.5px;}
+details summary::-webkit-details-marker{display:none;}
+details summary .chev{width:9px;height:9px;border-right:2px solid var(--rust);border-bottom:2px solid var(--rust);
+  transform:rotate(-45deg);transition:transform .15s ease;flex-shrink:0;margin-left:10px;}
+details[open] summary .chev{transform:rotate(45deg);}
+details summary .hint{font-family:'Inter',sans-serif;font-weight:400;font-size:12px;color:var(--ink-soft);margin-left:8px;}
+.details-body{padding:0 16px 16px;}
+
+table{width:100%;border-collapse:collapse;font-size:13px;}
+table caption{text-align:left;font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--vat);margin-bottom:8px;}
+th{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--ink-soft);text-align:right;padding:6px 4px;border-bottom:1px solid var(--hide-deep);font-weight:500;white-space:nowrap;}
+th:first-child,td:first-child{text-align:left;}
+td{padding:7px 4px;text-align:right;border-bottom:1px solid var(--hide);}
+tr:last-child td{border-bottom:none;}
+tr.total td{font-weight:700;border-top:1.5px solid var(--hide-deep);}
+tr.group td{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--vat);background:var(--hide);padding:8px 6px;border-bottom:1px solid var(--hide-deep);}
+tr.group:first-child td{border-top:none;}
+tr.group:not(:first-child) td{border-top:10px solid var(--card);}
+.trend table{font-size:12.5px;}
+.tablewrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.pos{color:var(--pos);} .neg{color:var(--rust);}
+
+.notes{font-size:13.5px;line-height:1.7;color:var(--ink-soft);}
+.notes li{margin-bottom:8px;}
+
+.dl{display:inline-flex;align-items:center;gap:8px;background:var(--rust);color:#fff;text-decoration:none;
+  font-weight:600;font-size:13.5px;padding:10px 18px;border-radius:3px;margin-top:18px;}
+.dl svg{width:13px;height:13px;}
+
+footer{margin-top:36px;padding-top:18px;border-top:1px solid var(--hide-deep);font-size:12px;color:var(--ink-soft);line-height:1.7;}
+footer strong{color:var(--ink);}
+
+@media (min-width:640px){
+  .kpi-grid{grid-template-columns:repeat(3,1fr);}
+  .kpi.wide{grid-column:span 1;}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <p class="eyebrow">Fusion Leather World · Internal</p>
+    <h1>Sales &amp; Production Report</h1>
+    <p>Sales, customers, order book, stock and cost figures for May 2026 / YTD 2026. Tap any section to expand it.</p>
+  </header>
+
+  <section class="page active">
+    
+<details open>
+<summary>Sales — May 2026 <span class="chev"></span></summary>
+<div class="details-body tablewrap">
+<table>
+<tr><td>Turnover (incl. gloving splits)</td><td>R 21,149,900<br><span style="color:var(--ink-soft);font-size:11.5px">6,449,587 DM2</span></td></tr>
+<tr><td>Avg selling price (excl VAT)</td><td>R 3.28 / DM2</td></tr>
+<tr><td>Avg selling price (excl VAT, ex gloving)</td><td>R 3.25 / DM2</td></tr>
+<tr><td>Enduro invoiced</td><td>3,454,157 DM2</td></tr>
+<tr><td>Sides invoiced</td><td>2,715,563 DM2</td></tr>
+<tr><td>Suedes invoiced</td><td>207,335 DM2</td></tr>
+<tr><td>Belting invoiced</td><td>43,421 DM2</td></tr>
+<tr class="total"><td>Total invoiced</td><td>6,420,476 DM2</td></tr>
+<tr><td>Gloving splits sales</td><td>R 303,584</td></tr>
+<tr><td>Credit notes (ex VAT)</td><td>24 notes · R 1,834,247</td></tr>
+</table>
+</div>
+</details>
+
+<details open>
+<summary>Sales Breakdown — YTD 2026 <span class="chev"></span></summary>
+<div class="details-body tablewrap">
+<table>
+<tr><th>Component</th><th>May 2026</th><th>YTD 2026</th><th>YTD 2025</th><th>Budget YTD</th></tr>
+<tr><td>D2m</td><td>R 6,449,587</td><td>R 21,116,089</td><td>R 20,312,267</td><td>R 22,711,979</td></tr>
+<tr><td>Sales</td><td>R 19,232,455</td><td>R 61,576,997</td><td>R 57,505,356</td><td>R 65,990,926</td></tr>
+<tr><td>Zero Rated Sales</td><td>R 2,012,385</td><td>R 6,825,776</td><td>R 6,537,739</td><td>R 9,035,030</td></tr>
+<tr class="total"><td>Total</td><td>R 21,244,839</td><td>R 68,402,772</td><td>R 64,043,095</td><td>R 75,025,957</td></tr>
+<tr><td>R / DM2</td><td>R 3.29</td><td>R 3.24</td><td>R 3.15</td><td>R 3.30</td></tr>
+</table>
+</div>
+</details>
+
+<details>
+<summary>Monthly Sales Trend <span class="hint">YTD &amp; Mar – May</span><span class="chev"></span></summary>
+<div class="details-body tablewrap trend">
+<table>
+<tr><th></th><th>2025</th><th>2026</th><th>Budget</th></tr>
+<tr class="group"><td colspan="4">YTD</td></tr><tr class="total"><td>D2m</td><td>20,312,267</td><td>21,116,089</td><td>22,711,979</td></tr><tr class="total"><td>Sales</td><td>R 57,505,356</td><td>R 61,576,997</td><td>R 65,990,926</td></tr><tr class="total"><td>Zero Rated</td><td>R 6,537,739</td><td>R 6,825,776</td><td>R 9,035,030</td></tr><tr class="total"><td>R/DM2</td><td>R 3.15</td><td>R 3.24</td><td>R 3.30</td></tr><tr class="group"><td colspan="4">March</td></tr><tr><td>D2m</td><td>6,086,493</td><td>7,627,058</td><td>6,872,273</td></tr><tr><td>Sales</td><td>R 17,507,184</td><td>R 21,398,012</td><td>R 20,090,568</td></tr><tr><td>Zero Rated</td><td>R 1,871,207</td><td>R 2,799,310</td><td>R 2,585,973</td></tr><tr><td>R/DM2</td><td>R 3.18</td><td>R 3.17</td><td>R 3.30</td></tr><tr class="group"><td colspan="4">April</td></tr><tr><td>D2m</td><td>6,606,128</td><td>7,039,444</td><td>7,353,265</td></tr><tr><td>Sales</td><td>R 18,500,223</td><td>R 20,946,530</td><td>R 21,230,141</td></tr><tr><td>Zero Rated</td><td>R 2,234,467</td><td>R 2,014,081</td><td>R 3,087,991</td></tr><tr><td>R/DM2</td><td>R 3.14</td><td>R 3.26</td><td>R 3.31</td></tr><tr class="group"><td colspan="4">May</td></tr><tr><td>D2m</td><td>7,619,646</td><td>6,449,587</td><td>8,486,442</td></tr><tr><td>Sales</td><td>R 21,497,949</td><td>R 19,232,455</td><td>R 24,670,217</td></tr><tr><td>Zero Rated</td><td>R 2,432,065</td><td>R 2,012,385</td><td>R 3,361,067</td></tr><tr><td>R/DM2</td><td>R 3.14</td><td>R 3.29</td><td>R 3.30</td></tr>
+</table>
+</div>
+</details>
+
+<details>
+<summary>Top 10 Customers <span class="hint">78% of sales</span><span class="chev"></span></summary>
+<div class="details-body tablewrap">
+<table>
+<tr><th>Customer</th><th>DM2</th><th>Rand Value</th><th>% of Sales</th></tr>
+<tr><td>BATA SOUTH AFRICA PROPRIETARY LIMITED</td><td>1,703,796</td><td>R 5,132,191</td><td>24.3%</td></tr>
+<tr><td>AFRICAN GAMESKIN GROUP (PTY) LTD</td><td>686,812</td><td>R 2,358,508</td><td>11.2%</td></tr>
+<tr><td>SOP TRADING (PTY) LTD</td><td>603,679</td><td>R 1,690,455</td><td>8.0%</td></tr>
+<tr><td>ZIMBABWE BATA SHOE LIMITED</td><td>518,054</td><td>R 1,735,397</td><td>8.2%</td></tr>
+<tr><td>FASTFOX FOOTWEAR T/A LITTLE SLIPPER</td><td>443,482</td><td>R 1,518,792</td><td>7.2%</td></tr>
+<tr><td>ONSHELF INVESTMENTS 73</td><td>409,609</td><td>R 1,400,925</td><td>6.6%</td></tr>
+<tr><td>ROX LEATHER (PTY) LTD</td><td>299,516</td><td>R 975,400</td><td>4.6%</td></tr>
+<tr><td>HOPEWELL FOOTWEAR</td><td>205,659</td><td>R 795,663</td><td>3.8%</td></tr>
+<tr><td>CORRIDA SHOES</td><td>194,221</td><td>R 583,113</td><td>2.8%</td></tr>
+<tr><td>PORTSIDE FOOTWEAR (PTY) LTD</td><td>149,962</td><td>R 318,757</td><td>1.5%</td></tr>
+<tr class="total"><td>Total</td><td>5,214,790</td><td>R 16,509,200</td><td>78.1%</td></tr>
+</table>
+</div>
+</details>
+
+<details>
+<summary>Local Order Book Balance <span class="chev"></span></summary>
+<div class="details-body tablewrap">
+<table>
+<tr><th>Customer</th><th>DM2</th><th>Rand Value</th></tr>
+<tr><td>Bata enduro orders - Black</td><td>12,651,968</td><td>R 37,829,384</td></tr>
+<tr><td>Bata Bourneville</td><td>200,000</td><td>R 648,000</td></tr>
+<tr><td>Bata side orders</td><td>0</td><td>R 0</td></tr>
+<tr><td>Other customer side orders</td><td>5,086,089</td><td>R 17,801,312</td></tr>
+<tr><td>Other customer suede (incl sides)</td><td>570,883</td><td>R 1,682,041</td></tr>
+<tr><td>Other (barton splits/cullatras/rocket)</td><td>0</td><td>R 0</td></tr>
+<tr><td>Other customer enduro orders</td><td>7,931,575</td><td>R 27,443,250</td></tr>
+<tr class="total"><td>Total</td><td>26,440,515</td><td>R 85,403,987</td></tr>
+</table>
+</div>
+</details>
+
+<details open>
+<summary>Debtors &amp; Creditors Ageing <span class="chev"></span></summary>
+<div class="details-body">
+<div class="tablewrap"><table><caption>Debtors — R 54,315,207</caption></table></div>
+<div class="tablewrap"><table><tr><th></th><th>%</th><th>Rand Value</th></tr><tr><td>Current</td><td>44.13%</td><td>R 23,968,018</td></tr>
+<tr><td>30 Days</td><td>22.74%</td><td>R 12,351,124</td></tr>
+<tr><td>60 Days</td><td>18.37%</td><td>R 9,975,632</td></tr>
+<tr><td>90 Days</td><td>9.02%</td><td>R 4,899,251</td></tr>
+<tr><td>120+ Days</td><td>5.75%</td><td>R 3,121,182</td></tr><tr class='total'><td>Total</td><td></td><td>R 54,315,207</td></tr></table></div>
+<div style="height:14px"></div>
+<div class="tablewrap"><table><caption>Creditors — R 9,923,793</caption></table></div>
+<div class="tablewrap"><table><tr><th></th><th>%</th><th>Rand Value</th></tr><tr><td>Current</td><td>85.13%</td><td>R 8,448,451</td></tr>
+<tr><td>30 Days</td><td>4.90%</td><td>R 486,230</td></tr>
+<tr><td>60 Days</td><td>4.85%</td><td>R 481,752</td></tr>
+<tr><td>90 Days</td><td>0.00%</td><td>R 0</td></tr>
+<tr><td>120+ Days</td><td>5.11%</td><td>R 507,360</td></tr><tr class='total'><td>Total</td><td></td><td>R 9,923,793</td></tr></table></div>
+</div>
+</details>
+
+<details>
+<summary>Stock by Category <span class="chev"></span></summary>
+<div class="details-body tablewrap">
+  <table><tr><td>Raw Material</td><td>R 7,343,588</td></tr>
+<tr><td>Crust</td><td>R 3,865,923</td></tr>
+<tr><td>Laminated</td><td>R 3,247,299</td></tr>
+<tr><td>Finished sides</td><td>R 3,498,846</td></tr>
+<tr><td>Suede</td><td>R 0</td></tr>
+<tr><td>Finished goods</td><td>R 4,200,819</td></tr>
+<tr><td>Cut-off Stock</td><td>R 1,443,010</td></tr>
+<tr><td>Chemicals</td><td>R 15,341,387</td></tr>
+<tr><td>Foils</td><td>R 2,418,812</td></tr>
+<tr><td>Spare Parts</td><td>R 1,136,582</td></tr><tr class="total"><td>Total</td><td>R 42,496,266</td></tr></table>
+</div>
+</details>
+
+<details>
+<summary>Expenses — Detail <span class="hint">43 line items</span><span class="chev"></span></summary>
+<div class="details-body tablewrap">
+<table>
+<tr><th>Item</th><th>2025 YTD</th><th>2026 YTD</th><th>Budget YTD</th><th>% A/B</th><th>% A/PY</th></tr>
+<tr><td>Accounting Fees</td><td>R 126,820</td><td>R 6,835</td><td>R 0</td><td>—</td><td>94.6%</td></tr>
+<tr><td>Advertising & Promotions</td><td>R 18,920</td><td>R 0</td><td>R 25,336</td><td>100.0%</td><td>100.0%</td></tr>
+<tr><td>Audit Fees</td><td>R 850</td><td>R 1,035</td><td>R 150,000</td><td>99.3%</td><td>-21.8%</td></tr>
+<tr><td>Bad Debts</td><td>R 0</td><td>R 0</td><td>R 0</td><td>—</td><td>—</td></tr>
+<tr><td>Bank Charges</td><td>R 57,957</td><td>R 37,177</td><td>R 59,599</td><td>37.6%</td><td>35.9%</td></tr>
+<tr><td>Cleaning, Hygiene & Waste Removal</td><td>R 444,986</td><td>R 273,996</td><td>R 246,539</td><td>-11.1%</td><td>38.4%</td></tr>
+<tr><td>Computer Expenses</td><td>R 29,389</td><td>R 91,343</td><td>R 20,058</td><td>-355.4%</td><td>-210.8%</td></tr>
+<tr><td>Consulting Fees</td><td>R 1,880</td><td>R 14,207</td><td>R 154</td><td>-9,121.4%</td><td>-655.7%</td></tr>
+<tr><td>Commission</td><td>R 0</td><td>R 191,140</td><td>R 0</td><td>—</td><td>—</td></tr>
+<tr><td>Depreciation</td><td>R 718,863</td><td>R 991,920</td><td>R 723,964</td><td>-37.0%</td><td>-38.0%</td></tr>
+<tr><td>Directors Salary</td><td>R 180,000</td><td>R 0</td><td>R 0</td><td>—</td><td>100.0%</td></tr>
+<tr><td>Discount Allowed for Cash</td><td>R 281</td><td>R 37,225</td><td>R 195</td><td>-19,009.5%</td><td>-13,147.9%</td></tr>
+<tr><td>Donations</td><td>R 0</td><td>R 0</td><td>R 0</td><td>—</td><td>—</td></tr>
+<tr><td>Electricity & Water</td><td>R 1,264,826</td><td>R 695,208</td><td>R 1,282,278</td><td>45.8%</td><td>45.0%</td></tr>
+<tr><td>Entertainment Expenses</td><td>R 53,155</td><td>R 0</td><td>R 50,072</td><td>100.0%</td><td>100.0%</td></tr>
+<tr><td>Fuel</td><td>R 1,170,715</td><td>R 1,303,515</td><td>R 1,205,210</td><td>-8.2%</td><td>-11.3%</td></tr>
+<tr><td>Gifts</td><td>R 11,327</td><td>R 7,899</td><td>R 6,855</td><td>-15.2%</td><td>30.3%</td></tr>
+<tr><td>Health & Safety</td><td>R 16,703</td><td>R 22,752</td><td>R 10,940</td><td>-108.0%</td><td>-36.2%</td></tr>
+<tr><td>Insurance</td><td>R 308,872</td><td>R 384,880</td><td>R 376,477</td><td>-2.2%</td><td>-24.6%</td></tr>
+<tr><td>Loss due to Fraud</td><td>R 0</td><td>R 0</td><td>R 0</td><td>—</td><td>—</td></tr>
+<tr><td>Moving Expenses</td><td>R 0</td><td>R 0</td><td>R 0</td><td>—</td><td>—</td></tr>
+<tr><td>Interest Paid</td><td>R 242,809</td><td>R 374,788</td><td>R 211,481</td><td>-77.2%</td><td>-54.4%</td></tr>
+<tr><td>Legal Fees</td><td>R 401</td><td>R 15,269</td><td>R 829</td><td>-1,741.2%</td><td>-3,710.5%</td></tr>
+<tr><td>Motor Vehicle Expenses</td><td>R 185,692</td><td>R 175,550</td><td>R 183,937</td><td>4.6%</td><td>5.5%</td></tr>
+<tr><td>Printing & Stationery</td><td>R 29,212</td><td>R 21,577</td><td>R 25,968</td><td>16.9%</td><td>26.1%</td></tr>
+<tr><td>Protective Clothing</td><td>R 7,230</td><td>R 0</td><td>R 6,879</td><td>100.0%</td><td>100.0%</td></tr>
+<tr><td>Rent Paid</td><td>R 1,054,248</td><td>R 1,098,028</td><td>R 1,223,449</td><td>10.2%</td><td>-4.2%</td></tr>
+<tr><td>Rental - Containers</td><td>R 0</td><td>R 0</td><td>R 0</td><td>—</td><td>—</td></tr>
+<tr><td>Repairs & Maintenance - 46 Neil Hare</td><td>R 741,348</td><td>R 689,689</td><td>R 605,897</td><td>-13.8%</td><td>7.0%</td></tr>
+<tr><td>Repairs & Maintenance - 21 Neil Hare</td><td>R 121,969</td><td>R 26,845</td><td>R 0</td><td>—</td><td>78.0%</td></tr>
+<tr><td>Repairs & Maintenance - Forklift</td><td>R 21,985</td><td>R 13,066</td><td>R 0</td><td>—</td><td>40.6%</td></tr>
+<tr><td>Repairs & Maintenance - Vacuum</td><td>R 0</td><td>R 0</td><td>R 0</td><td>—</td><td>—</td></tr>
+<tr><td>Repairs & Maintenance - Other</td><td>R 0</td><td>R 0</td><td>R 0</td><td>—</td><td>—</td></tr>
+<tr><td>Salaries & Wages</td><td>R 7,117,534</td><td>R 6,914,835</td><td>R 7,749,290</td><td>10.8%</td><td>2.9%</td></tr>
+<tr><td>Security</td><td>R 191,266</td><td>R 198,931</td><td>R 188,828</td><td>-5.3%</td><td>-4.0%</td></tr>
+<tr><td>Small Tools</td><td>R 0</td><td>R 0</td><td>R 25,000</td><td>100.0%</td><td>—</td></tr>
+<tr><td>Spare Parts</td><td>R 1,051,439</td><td>R 77,423</td><td>R 332,344</td><td>76.7%</td><td>92.6%</td></tr>
+<tr><td>Staff Training</td><td>R 14,000</td><td>R 1,592</td><td>R 15,441</td><td>89.7%</td><td>88.6%</td></tr>
+<tr><td>Subscriptions</td><td>R 19,950</td><td>R 13,979</td><td>R 20,261</td><td>31.0%</td><td>29.9%</td></tr>
+<tr><td>Teas & Refreshments</td><td>R 68,548</td><td>R 58,437</td><td>R 65,777</td><td>11.2%</td><td>14.8%</td></tr>
+<tr><td>Telephone & Fax</td><td>R 36,414</td><td>R 39,682</td><td>R 33,348</td><td>-19.0%</td><td>-9.0%</td></tr>
+<tr><td>Travel & Accommodation - Local</td><td>R 103,803</td><td>R 190,834</td><td>R 32,733</td><td>-483.0%</td><td>-83.8%</td></tr>
+<tr><td>Travel & Accommodation - Overseas</td><td>R 158,209</td><td>R 0</td><td>R 225,740</td><td>100.0%</td><td>100.0%</td></tr>
+<tr class="total"><td>Total Expenses</td><td>R 15,571,601</td><td>R 13,969,658</td><td>R 15,104,879</td><td>7.5%</td><td>10.3%</td></tr>
+</table>
+</div>
+</details>
+
+  </section>
+
+  <footer>
+    <strong>How this stays current:</strong> figures are refreshed monthly from the source workbooks alongside the main management dashboard.
+  </footer>
+
+</div>
+</body>
+</html>
