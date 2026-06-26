@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZIM001 – Interest Cost Analysis | Fusion Leather World</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink:      #1a1f2e;
+    --ink-mid:  #4a5168;
+    --ink-soft: #8b90a0;
+    --rule:     #dde1ea;
+    --bg:       #f5f6f9;
+    --white:    #ffffff;
+    --navy:     #1f3c6b;
+    --navy-lt:  #e8edf5;
+    --teal:     #0e7490;
+    --teal-lt:  #e0f2f7;
+    --orange:   #c2410c;
+    --orange-lt:#fff7ed;
+    --amber:    #b45309;
+    --red:      #be123c;
+    --sans:     -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+    --mono:     'Courier New', Courier, monospace;
+  }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--ink);
+    font-size: 14px;
+    line-height: 1.5;
+    padding: 32px 24px 64px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .page-header {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    margin-bottom: 32px; padding-bottom: 20px; border-bottom: 2px solid var(--navy);
+    flex-wrap: wrap; gap: 12px;
+  }
+  .brand { font-size: 11px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 6px; }
+  .page-title { font-size: 22px; font-weight: 700; color: var(--navy); line-height: 1.2; }
+  .page-sub   { font-size: 13px; color: var(--ink-mid); margin-top: 4px; }
+  .badge { background: var(--orange); color: #fff; font-size: 11px; font-weight: 700; letter-spacing: .06em; padding: 6px 14px; border-radius: 4px; white-space: nowrap; align-self: flex-start; }
+
+  .summary-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 36px; }
+  @media (max-width: 700px) { .summary-strip { grid-template-columns: 1fr 1fr; } }
+  .summary-card { background: var(--white); border: 1px solid var(--rule); border-radius: 8px; padding: 16px 18px; }
+  .sc-label { font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 6px; }
+  .sc-value { font-family: var(--mono); font-size: 18px; font-weight: bold; }
+  .sc-value.s60  { color: var(--teal); }
+  .sc-value.s90  { color: var(--navy); }
+  .sc-value.diff { color: var(--orange); }
+  .sc-sub { font-size: 11px; color: var(--ink-soft); margin-top: 4px; }
+
+  .section-title {
+    font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--ink-soft); margin: 0 0 12px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .section-title::after { content: ''; flex: 1; height: 1px; background: var(--rule); }
+
+  .table-wrap { overflow-x: auto; border-radius: 8px; border: 1px solid var(--rule); margin-bottom: 36px; }
+  table { width: 100%; border-collapse: collapse; background: var(--white); }
+
+  thead tr.group-row th {
+    font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+    padding: 9px 14px; color: #fff; text-align: center; border-bottom: 1px solid rgba(255,255,255,.15);
+  }
+  thead tr.group-row th.g-month { background: var(--navy); text-align: left; }
+  thead tr.group-row th.g-bal   { background: var(--navy); }
+  thead tr.group-row th.g-s60   { background: var(--teal); }
+  thead tr.group-row th.g-s90   { background: #2a4f8a; }
+
+  thead tr.col-row th {
+    font-size: 10px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase;
+    padding: 8px 14px; color: rgba(255,255,255,.9); text-align: right; white-space: nowrap;
+  }
+  thead tr.col-row th:first-child { text-align: left; }
+  thead tr.col-row th.h-bal { background: #2a4f82; }
+  thead tr.col-row th.h-s60 { background: #0891b2; }
+  thead tr.col-row th.h-s90 { background: #2e5091; }
+
+  tbody tr { border-bottom: 1px solid var(--rule); }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:nth-child(even) td { background: var(--bg); }
+  tbody tr:hover td { background: var(--navy-lt); }
+  td { padding: 9px 14px; font-family: var(--mono); font-size: 12px; text-align: right; white-space: nowrap; }
+  td:first-child { text-align: left; font-family: var(--sans); font-weight: 600; font-size: 13px; color: var(--navy); }
+  td.zero  { color: #cdd1da; }
+  td.int60 { color: var(--teal); font-weight: bold; }
+  td.int90 { color: var(--navy); font-weight: bold; }
+
+  tfoot tr td { background: var(--navy-lt) !important; font-weight: bold; border-top: 2px solid var(--navy); }
+  tfoot tr td.int60 { color: var(--teal); background: var(--teal-lt) !important; }
+  tfoot tr td.int90 { color: var(--navy); }
+
+  .assumptions { background: var(--white); border: 1px solid var(--rule); border-radius: 8px; overflow: hidden; }
+  .assumptions-head { background: var(--navy); color: #fff; padding: 10px 16px; font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+  .assumption-row { display: flex; border-bottom: 1px solid var(--rule); }
+  .assumption-row:last-child { border-bottom: none; }
+  .ak { padding: 9px 16px; font-size: 12px; font-weight: 600; color: var(--navy); flex: 0 0 240px; background: var(--navy-lt); }
+  .av { padding: 9px 16px; font-size: 12px; color: var(--ink-mid); }
+  @media (max-width: 600px) { .ak { flex: 0 0 140px; font-size: 11px; } .av { font-size: 11px; } }
+
+  @media print {
+    body { background: #fff; padding: 16px; max-width: 100%; }
+    .summary-strip { page-break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<header class="page-header">
+  <div>
+    <div class="brand">Fusion Leather World (Pty) Ltd</div>
+    <div class="page-title">ZIM001 &ndash; Zimbabwe Bata Shoe Limited</div>
+    <div class="page-sub">Overdraft Interest Cost Analysis &nbsp;&middot;&nbsp; Jul 2025 &ndash; Jun 2026 &nbsp;&middot;&nbsp; Rate: 10.25% p.a.</div>
+  </div>
+  <div class="badge">10.25% p.a.</div>
+</header>
+
+<div class="summary-strip">
+  <div class="summary-card">
+    <div class="sc-label">12-Month Cost &middot; 60-Day Terms</div>
+    <div class="sc-value s60">R 520 782</div>
+    <div class="sc-sub">120+ + 90 Days overdue</div>
+  </div>
+  <div class="summary-card">
+    <div class="sc-label">12-Month Cost &middot; 90-Day Terms</div>
+    <div class="sc-value s90">R 265 428</div>
+    <div class="sc-sub">120+ Days overdue only</div>
+  </div>
+  <div class="summary-card">
+    <div class="sc-label">Difference (extra cost)</div>
+    <div class="sc-value diff">R 255 354</div>
+    <div class="sc-sub">Extra cost under 60-day terms</div>
+  </div>
+  <div class="summary-card">
+    <div class="sc-label">Peak Monthly Cost (Jun-26)</div>
+    <div class="sc-value diff">R 83 086</div>
+    <div class="sc-sub">60-day scenario</div>
+  </div>
+</div>
+
+<div class="section-title">Monthly Interest Cost by Scenario</div>
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr class="group-row">
+        <th class="g-month" rowspan="2">Month</th>
+        <th class="g-bal" colspan="3">Overdue Balances at Month End</th>
+        <th class="g-s60" colspan="2">60-Day Terms</th>
+        <th class="g-s90" colspan="2">90-Day Terms</th>
+      </tr>
+      <tr class="col-row">
+        <th class="h-bal">120+ Days</th>
+        <th class="h-bal">90 Days</th>
+        <th class="h-bal">Total (120+ + 90)</th>
+        <th class="h-s60">Monthly Interest</th>
+        <th class="h-s60">Annualised</th>
+        <th class="h-s90">Monthly Interest</th>
+        <th class="h-s90">Annualised</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Jul-25</td><td class="zero">&ndash;</td><td>2 107 021.55</td><td>2 107 021.55</td><td class="int60">17 997.48</td><td class="int60">215 969.71</td><td class="zero">&ndash;</td><td class="zero">&ndash;</td></tr>
+      <tr><td>Aug-25</td><td class="zero">&ndash;</td><td class="zero">&ndash;</td><td class="zero">&ndash;</td><td class="zero">&ndash;</td><td class="zero">&ndash;</td><td class="zero">&ndash;</td><td class="zero">&ndash;</td></tr>
+      <tr><td>Sep-25</td><td class="zero">&ndash;</td><td>946 254.90</td><td>946 254.90</td><td class="int60">8 082.59</td><td class="int60">96 991.13</td><td class="zero">&ndash;</td><td class="zero">&ndash;</td></tr>
+      <tr><td>Oct-25</td><td>946 254.90</td><td>3 646 858.31</td><td>4 593 113.21</td><td class="int60">39 232.84</td><td class="int60">470 794.10</td><td class="int90">8 082.59</td><td class="int90">96 991.13</td></tr>
+      <tr><td>Nov-25</td><td>1 903 807.94</td><td>3 195 155.83</td><td>5 098 963.77</td><td class="int60">43 553.65</td><td class="int60">522 643.79</td><td class="int90">16 261.69</td><td class="int90">195 140.31</td></tr>
+      <tr><td>Dec-25</td><td>2 922 069.89</td><td>3 784 442.26</td><td>6 706 512.15</td><td class="int60">57 284.79</td><td class="int60">687 417.50</td><td class="int90">24 959.35</td><td class="int90">299 512.16</td></tr>
+      <tr><td>Jan-26</td><td>2 327 010.95</td><td>2 611 112.53</td><td>4 938 123.48</td><td class="int60">42 179.80</td><td class="int60">506 157.66</td><td class="int90">19 876.55</td><td class="int90">238 518.62</td></tr>
+      <tr><td>Feb-26</td><td>2 573 440.25</td><td>3 061 345.37</td><td>5 634 785.62</td><td class="int60">48 130.46</td><td class="int60">577 565.53</td><td class="int90">21 981.47</td><td class="int90">263 777.63</td></tr>
+      <tr><td>Mar-26</td><td>5 634 785.62</td><td>1 786 599.33</td><td>7 421 384.95</td><td class="int60">63 391.00</td><td class="int60">760 691.96</td><td class="int90">48 130.46</td><td class="int90">577 565.53</td></tr>
+      <tr><td>Apr-26</td><td>4 856 754.95</td><td>2 011 623.94</td><td>6 868 378.89</td><td class="int60">58 667.40</td><td class="int60">704 008.84</td><td class="int90">41 484.78</td><td class="int90">497 817.38</td></tr>
+      <tr><td>May-26</td><td>2 982 490.41</td><td>3 945 365.04</td><td>6 927 855.45</td><td class="int60">59 175.43</td><td class="int60">710 105.18</td><td class="int90">25 475.44</td><td class="int90">305 705.27</td></tr>
+      <tr><td>Jun-26</td><td>6 927 855.45</td><td>2 799 310.05</td><td>9 727 165.50</td><td class="int60">83 086.21</td><td class="int60">997 034.46</td><td class="int90">59 175.43</td><td class="int90">710 105.18</td></tr>
+    </tbody>
+    <tfoot>
+      <tr>
+        <td>12-Month Total</td>
+        <td>31 074 470.36</td>
+        <td>29 895 089.11</td>
+        <td>60 969 559.47</td>
+        <td class="int60">520 781.65</td>
+        <td class="int60">6 249 379.85</td>
+        <td class="int90">265 427.77</td>
+        <td class="int90">3 185 133.21</td>
+      </tr>
+    </tfoot>
+  </table>
+</div>
+
+<div class="section-title">Assumptions</div>
+<div class="assumptions">
+  <div class="assumptions-head">Calculation Basis</div>
+  <div class="assumption-row"><div class="ak">Annual Overdraft Rate</div><div class="av">10.25% per annum</div></div>
+  <div class="assumption-row"><div class="ak">Monthly Rate</div><div class="av">0.8542% (annual rate &divide; 12)</div></div>
+  <div class="assumption-row"><div class="ak">60-Day Terms &mdash; Overdue</div><div class="av">120+ Days + 90 Days buckets (both beyond the 60-day limit)</div></div>
+  <div class="assumption-row"><div class="ak">90-Day Terms &mdash; Overdue</div><div class="av">120+ Days bucket only (90-day bucket is still within terms)</div></div>
+  <div class="assumption-row"><div class="ak">Interest Method</div><div class="av">Simple interest: month-end overdue balance &times; monthly rate</div></div>
+</div>
+
+</body>
+</html>
