@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fusion Leather World — Sales Tracking</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --hide:#ECE3D2; --hide-deep:#DCCFB6; --card:#FBF8F1; --ink:#2B2118;
+  --ink-soft:#6E6358; --rust:#A5512E; --rust-deep:#823C20; --vat:#6E7A52;
+  --stitch:#C7B79B; --pos:#5C7A4A; --neg:#A5512E;
+}
+*{box-sizing:border-box;}
+body{margin:0;background:
+  radial-gradient(circle at 1px 1px, rgba(43,33,24,0.035) 1px, transparent 1.6px) 0 0/14px 14px,
+  var(--hide); color:var(--ink); font-family:'Inter',system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased;}
+.wrap{max-width:760px;margin:0 auto;padding:28px 16px 60px;}
+header{position:relative;padding:30px 24px 26px;background:var(--card);border-radius:4px;
+  box-shadow:0 1px 0 rgba(43,33,24,0.06),0 18px 40px -28px rgba(43,33,24,0.55);margin-bottom:22px;overflow:hidden;}
+header::before{content:"";position:absolute;inset:0;border:1px solid var(--hide-deep);border-radius:4px;}
+header::after{content:"";position:absolute;left:12px;top:12px;right:12px;bottom:12px;
+  border:1.5px dashed var(--stitch);border-radius:2px;}
+.eyebrow{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--rust);margin:0 0 10px;}
+h1{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(26px,7vw,38px);line-height:1.08;margin:0 0 8px;letter-spacing:-.01em;}
+header p{margin:0;color:var(--ink-soft);font-size:14px;line-height:1.55;}
+
+.toggle{display:flex;gap:8px;margin:0 0 18px;}
+.toggle button{flex:1;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.14em;
+  text-transform:uppercase;padding:11px 8px;border-radius:4px;border:1px solid var(--hide-deep);
+  background:var(--card);color:var(--ink-soft);cursor:pointer;}
+.toggle button.on{background:var(--rust);border-color:var(--rust);color:#fff;font-weight:600;}
+
+.section-label{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--ink-soft);margin:26px 0 10px 2px;display:flex;align-items:center;gap:10px;}
+.section-label::after{content:"";flex:1;height:1px;background:var(--hide-deep);}
+
+.kpi-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+.kpi{background:var(--card);border:1px solid var(--hide-deep);border-radius:4px;padding:14px 14px 12px;}
+.kpi .label{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--ink-soft);margin:0 0 6px;}
+.kpi .value{font-family:'Fraunces',serif;font-weight:600;font-size:19px;line-height:1.2;margin:0;}
+.kpi .sub{font-size:12px;color:var(--ink-soft);margin:5px 0 0;line-height:1.5;}
+.kpi.wide{grid-column:1 / -1;}
+.pos{color:var(--pos);font-weight:600;}
+.neg{color:var(--neg);font-weight:600;}
+
+.bars{background:var(--card);border:1px solid var(--hide-deep);border-radius:4px;padding:16px 14px 12px;}
+.bar-row{margin-bottom:12px;}
+.bar-row:last-child{margin-bottom:0;}
+.bar-head{display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;}
+.bar-head .m{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);}
+.bar-head .v{font-weight:600;}
+.bar-track{position:relative;height:14px;background:var(--hide);border-radius:3px;overflow:hidden;}
+.bar-fill{position:absolute;inset:0 auto 0 0;background:var(--vat);border-radius:3px;}
+.bar-fill.under{background:var(--rust);}
+.bar-mark{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--ink);opacity:.55;}
+.bar-note{font-size:11px;color:var(--ink-soft);margin-top:3px;}
+
+.next-card{background:var(--card);border:1.5px dashed var(--stitch);border-radius:4px;padding:18px 16px;}
+.next-card .big{font-family:'Fraunces',serif;font-weight:600;font-size:24px;margin:2px 0 2px;}
+.next-card .row{display:flex;justify-content:space-between;font-size:13px;padding:7px 0;border-bottom:1px solid var(--hide);}
+.next-card .row:last-child{border-bottom:none;}
+.next-card .row span:last-child{font-weight:600;}
+
+.picker{margin:0 0 14px;position:relative;}
+.picker select{width:100%;font-family:'Fraunces',serif;font-weight:600;font-size:15px;
+  padding:13px 40px 13px 14px;border-radius:4px;border:1px solid var(--hide-deep);
+  background:var(--card);color:var(--ink);appearance:none;cursor:pointer;}
+.picker::after{content:"";position:absolute;right:18px;top:50%;margin-top:-7px;width:10px;height:10px;
+  border-right:2px solid var(--rust);border-bottom:2px solid var(--rust);transform:rotate(45deg);pointer-events:none;}
+
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--ink-soft);text-align:right;padding:6px 4px;border-bottom:1px solid var(--hide-deep);font-weight:500;white-space:nowrap;}
+th:first-child,td:first-child{text-align:left;}
+td{padding:8px 4px;text-align:right;border-bottom:1px solid var(--hide);}
+tr:last-child td{border-bottom:none;}
+.month-detail{background:var(--card);border:1px solid var(--hide-deep);border-radius:4px;padding:14px;}
+
+footer{margin-top:36px;padding-top:18px;border-top:1px solid var(--hide-deep);font-size:12px;color:var(--ink-soft);line-height:1.7;}
+footer strong{color:var(--ink);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <p class="eyebrow">Fusion Leather World · Internal</p>
+    <h1>Sales Tracking</h1>
+    <p>How we're tracking against budget and last year — updated through June 2026. Switch between Rand value and volume (DM2).</p>
+  </header>
+
+  <div class="toggle">
+    <button id="btnR" class="on" onclick="setUnit('R')">Rand</button>
+    <button id="btnD" onclick="setUnit('D')">DM2 (Volume)</button>
+  </div>
+
+  <div id="viewR">
+<p class="section-label">June 2026 — Month</p>
+<div class="kpi-grid">
+  <div class="kpi"><p class="label">Actual</p><p class="value">R 22,638,116</p>
+    <p class="sub">Budget R 24,408,158<br>Prior yr R 20,562,762</p></div>
+  <div class="kpi"><p class="label">Tracking</p>
+    <p class="value"><span class="neg">-7.3%</span> <span style="font-size:12px;color:var(--ink-soft);font-weight:400">vs budget</span></p>
+    <p class="sub"><span class="pos">+10.1%</span> vs prior year</p></div>
+</div>
+
+<p class="section-label">Year to Date (Mar – Jun)</p>
+<div class="kpi-grid">
+  <div class="kpi"><p class="label">Actual YTD</p><p class="value">R 90,199,708</p>
+    <p class="sub">Budget R 99,434,115<br>Prior yr R 84,605,857</p></div>
+  <div class="kpi"><p class="label">Tracking</p>
+    <p class="value"><span class="neg">-9.3%</span> <span style="font-size:12px;color:var(--ink-soft);font-weight:400">vs budget</span></p>
+    <p class="sub"><span class="pos">+6.6%</span> vs prior year</p></div>
+  <div class="kpi wide"><p class="label">Full-Year Progress</p>
+    <p class="value">29.7% <span style="font-size:12px;color:var(--ink-soft);font-weight:400">of annual budget R 304,079,500</span></p>
+    <p class="sub">Prior full year: R 257,588,148</p></div>
+</div>
+
+<p class="section-label">Monthly — Actual vs Budget</p>
+<div class="bars">
+<div class="bar-row">
+  <div class="bar-head"><span class="m">March</span><span class="v">R 24,096,877 <span class="pos" style="font-size:11px">+6.3%</span></span></div>
+  <div class="bar-track">
+    <div class="bar-fill" style="width:81.9%"></div>
+    <div class="bar-mark" style="left:77.0%" title="Budget"></div>
+  </div>
+  <div class="bar-note">Budget R 22,676,541 · Prior yr R 19,378,391</div>
+</div>
+<div class="bar-row">
+  <div class="bar-head"><span class="m">April</span><span class="v">R 22,219,875 <span class="neg" style="font-size:11px">-8.6%</span></span></div>
+  <div class="bar-track">
+    <div class="bar-fill under" style="width:75.5%"></div>
+    <div class="bar-mark" style="left:82.6%" title="Budget"></div>
+  </div>
+  <div class="bar-note">Budget R 24,318,132 · Prior yr R 20,734,690</div>
+</div>
+<div class="bar-row">
+  <div class="bar-head"><span class="m">May</span><span class="v">R 21,244,839 <span class="neg" style="font-size:11px">-24.2%</span></span></div>
+  <div class="bar-track">
+    <div class="bar-fill under" style="width:72.2%"></div>
+    <div class="bar-mark" style="left:95.2%" title="Budget"></div>
+  </div>
+  <div class="bar-note">Budget R 28,031,284 · Prior yr R 23,930,014</div>
+</div>
+<div class="bar-row">
+  <div class="bar-head"><span class="m">June</span><span class="v">R 22,638,116 <span class="neg" style="font-size:11px">-7.3%</span></span></div>
+  <div class="bar-track">
+    <div class="bar-fill under" style="width:76.9%"></div>
+    <div class="bar-mark" style="left:82.9%" title="Budget"></div>
+  </div>
+  <div class="bar-note">Budget R 24,408,158 · Prior yr R 20,562,762</div>
+</div>
+<div class="bar-note" style="margin-top:10px">Bar = actual · black line = budget · green bar meets budget, rust bar is under</div>
+</div>
+
+<p class="section-label">Next Month Target — July 2026</p>
+<div class="next-card">
+  <p class="label" style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);margin:0">Budget (Rand)</p>
+  <p class="big">R 30,690,513</p>
+  <div class="row"><span>Last year (July 2025)</span><span>R 25,984,228</span></div>
+  <div class="row"><span>Required vs last year</span><span class="pos">+18.1%</span></div>
+</div>
+</div>
+  <div id="viewD" style="display:none">
+<p class="section-label">June 2026 — Month</p>
+<div class="kpi-grid">
+  <div class="kpi"><p class="label">Actual</p><p class="value">6,876,033</p>
+    <p class="sub">Budget 7,292,293<br>Prior yr 6,426,829</p></div>
+  <div class="kpi"><p class="label">Tracking</p>
+    <p class="value"><span class="neg">-5.7%</span> <span style="font-size:12px;color:var(--ink-soft);font-weight:400">vs budget</span></p>
+    <p class="sub"><span class="pos">+7.0%</span> vs prior year</p></div>
+</div>
+
+<p class="section-label">Year to Date (Mar – Jun)</p>
+<div class="kpi-grid">
+  <div class="kpi"><p class="label">Actual YTD</p><p class="value">27,992,122</p>
+    <p class="sub">Budget 30,004,273<br>Prior yr 26,739,096</p></div>
+  <div class="kpi"><p class="label">Tracking</p>
+    <p class="value"><span class="neg">-6.7%</span> <span style="font-size:12px;color:var(--ink-soft);font-weight:400">vs budget</span></p>
+    <p class="sub"><span class="pos">+4.7%</span> vs prior year</p></div>
+  <div class="kpi wide"><p class="label">Full-Year Progress</p>
+    <p class="value">30.6% <span style="font-size:12px;color:var(--ink-soft);font-weight:400">of annual budget 91,350,000</span></p>
+    <p class="sub">Prior full year: 81,854,522</p></div>
+</div>
+
+<p class="section-label">Monthly — Actual vs Budget</p>
+<div class="bars">
+<div class="bar-row">
+  <div class="bar-head"><span class="m">March</span><span class="v">7,627,058 <span class="pos" style="font-size:11px">+11.0%</span></span></div>
+  <div class="bar-track">
+    <div class="bar-fill" style="width:85.6%"></div>
+    <div class="bar-mark" style="left:77.1%" title="Budget"></div>
+  </div>
+  <div class="bar-note">Budget 6,872,273 · Prior yr 6,086,493</div>
+</div>
+<div class="bar-row">
+  <div class="bar-head"><span class="m">April</span><span class="v">7,039,444 <span class="neg" style="font-size:11px">-4.3%</span></span></div>
+  <div class="bar-track">
+    <div class="bar-fill under" style="width:79.0%"></div>
+    <div class="bar-mark" style="left:82.5%" title="Budget"></div>
+  </div>
+  <div class="bar-note">Budget 7,353,265 · Prior yr 6,606,128</div>
+</div>
+<div class="bar-row">
+  <div class="bar-head"><span class="m">May</span><span class="v">6,449,587 <span class="neg" style="font-size:11px">-24.0%</span></span></div>
+  <div class="bar-track">
+    <div class="bar-fill under" style="width:72.4%"></div>
+    <div class="bar-mark" style="left:95.2%" title="Budget"></div>
+  </div>
+  <div class="bar-note">Budget 8,486,442 · Prior yr 7,619,646</div>
+</div>
+<div class="bar-row">
+  <div class="bar-head"><span class="m">June</span><span class="v">6,876,033 <span class="neg" style="font-size:11px">-5.7%</span></span></div>
+  <div class="bar-track">
+    <div class="bar-fill under" style="width:77.2%"></div>
+    <div class="bar-mark" style="left:81.8%" title="Budget"></div>
+  </div>
+  <div class="bar-note">Budget 7,292,293 · Prior yr 6,426,829</div>
+</div>
+<div class="bar-note" style="margin-top:10px">Bar = actual · black line = budget · green bar meets budget, rust bar is under</div>
+</div>
+
+<p class="section-label">Next Month Target — July 2026</p>
+<div class="next-card">
+  <p class="label" style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-soft);margin:0">Budget (DM2)</p>
+  <p class="big">9,214,940</p>
+  <div class="row"><span>Last year (July 2025)</span><span>8,303,695</span></div>
+  <div class="row"><span>Required vs last year</span><span class="pos">+11.0%</span></div>
+</div>
+</div>
+
+  
+<p class="section-label">Month Explorer</p>
+<div class="picker">
+  <select id="mSel" onchange="renderMonth()"><option value="0">March 2026</option><option value="1">April 2026</option><option value="2">May 2026</option><option value="3" selected>June 2026</option><option value="4">July 2026</option><option value="5">August 2026</option><option value="6">September 2026</option><option value="7">October 2026</option><option value="8">November 2026</option><option value="9">December 2026</option><option value="10">January 2027</option><option value="11">February 2027</option></select>
+</div>
+<div class="month-detail">
+  <table id="mTable"></table>
+</div>
+<script>
+const D = {"months": ["March", "April", "May", "June", "July", "August", "September", "October", "November", "December", "January", "February"], "py_r": [19378391.18, 20734689.8, 23930013.95, 20562761.73, 25984228.12, 23034004.41, 25286894.04, 24441523.83, 24019671.48, 8655569.77, 16558856.79, 25001543.04], "bud_r": [22676540.99, 24318132.16, 28031283.5, 24408157.95, 30690513.4, 27201200.83, 29956776.1, 28676944.38, 28733791.49, 10163318.82, 19473868.65, 29748971.72], "cy_r": [24096876.57, 22219875.38, 21244839.21, 22638116.46], "py_d": [6086493, 6606128, 7619646, 6426829, 8303695, 7495078, 8123609, 7834610, 7400412, 2660061, 5385585, 7912376], "bud_d": [6872272.84, 7353265.0, 8486441.59, 7292293.13, 9214939.65, 8168684.46, 8967639.96, 8667841.35, 8518237.37, 3069575.62, 5872364.78, 8866444.26], "cy_d": [7627058, 7039444, 6449587, 6876033], "py_rate": [3.1838, 3.1387, 3.1406, 3.1995, 3.1292, 3.0732, 3.1128, 3.1197, 3.2457, 3.2539, 3.0747, 3.1598], "bud_rate": [3.2997, 3.3071, 3.3031, 3.3471, 3.3305, 3.3299, 3.3405, 3.3084, 3.3732, 3.311, 3.3162, 3.3552], "cy_rate": [3.1594, 3.1565, 3.294, 3.2923]};
+function fR(x){ if(x==null) return "—"; const s = x<0?"-":""; x=Math.abs(x);
+  return s+"R\u00A0"+x.toLocaleString("en-ZA",{maximumFractionDigits:0}); }
+function fN(x){ if(x==null) return "—"; return x.toLocaleString("en-ZA",{maximumFractionDigits:0}); }
+function fRt(x){ if(x==null) return "—"; return "R\u00A0"+x.toFixed(2); }
+function fP(a,b){ if(a==null||b==null) return ""; const v=(a/b-1)*100;
+  const cls = v>=0 ? "pos":"neg"; const sign = v>=0?"+":"";
+  return ' <span class="'+cls+'" style="font-size:11px">'+sign+v.toFixed(1)+'%</span>'; }
+function renderMonth(){
+  const i = +document.getElementById("mSel").value;
+  const cyR = i < D.cy_r.length ? D.cy_r[i] : null;
+  const cyD = i < D.cy_d.length ? D.cy_d[i] : null;
+  const cyRt = i < D.cy_rate.length ? D.cy_rate[i] : null;
+  let h = "<tr><th></th><th>Actual 2026</th><th>Budget</th><th>Prior Yr</th></tr>";
+  h += "<tr><td>Rand</td><td>"+fR(cyR)+fP(cyR,D.bud_r[i])+"</td><td>"+fR(D.bud_r[i])+"</td><td>"+fR(D.py_r[i])+"</td></tr>";
+  h += "<tr><td>D2m</td><td>"+fN(cyD)+fP(cyD,D.bud_d[i])+"</td><td>"+fN(D.bud_d[i])+"</td><td>"+fN(D.py_d[i])+"</td></tr>";
+  h += "<tr><td>R/DM2</td><td>"+fRt(cyRt)+"</td><td>"+fRt(D.bud_rate[i])+"</td><td>"+fRt(D.py_rate[i])+"</td></tr>";
+  document.getElementById("mTable").innerHTML = h;
+}
+renderMonth();
+</script>
+
+
+  <footer>
+    <strong>Figures:</strong> current year actuals through June 2026; budget per month derived from the FY&nbsp;2026 sales curve applied to the annual budget. Refreshed monthly.
+  </footer>
+
+</div>
+<script>
+function setUnit(u){
+  document.getElementById("viewR").style.display = u==="R" ? "" : "none";
+  document.getElementById("viewD").style.display = u==="D" ? "" : "none";
+  document.getElementById("btnR").classList.toggle("on", u==="R");
+  document.getElementById("btnD").classList.toggle("on", u==="D");
+}
+</script>
+</body>
+</html>
