@@ -9,8 +9,8 @@ const TRACKING = {
 
   // ┌─────────────── WEEKLY UPDATE — EDIT THESE ───────────────┐
   asOf: "1 July 2026",          // date the MTD figures run to
-  mtdRand: 0,                   // month-to-date sales, Rand
-  mtdD2m: 0,                    // month-to-date volume, DM2
+  mtdRand: 70,                   // month-to-date sales, Rand
+  mtdD2m: 20,                    // month-to-date volume, DM2
   // └───────────────────────────────────────────────────────────┘
 
   // Index of the current (open) month: 0=March ... 11=February
