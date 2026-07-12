@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fusion Leather World — Chemical Stock Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root{--ink:#1A1A2E;--ink2:#4A4A6A;--ink3:#8888A8;--cream:#F7F6F2;--white:#FFFFFF;--rule:#E2E0DA;--navy:#1C2B4A;--teal:#0D7377;--teal-l:#E0F4F4;--amber:#B5510A;--amber-l:#FDF0E4;--rose:#8B2635;--rose-l:#F9E8EB;--sage:#3A6349;--sage-l:#EAF2ED;--blue:#1E5FA8;--blue-l:#E4EEF9;--grey-l:#F0EFF0;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--cream);color:var(--ink);line-height:1.5;}
+.shell{max-width:1180px;margin:0 auto;padding:28px 20px 60px;}
+.header{border-bottom:3px solid var(--navy);padding-bottom:18px;margin-bottom:28px;}
+.wordmark{font-size:11px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--ink3);}
+h1{font-size:26px;font-weight:700;color:var(--navy);letter-spacing:-0.5px;margin-top:6px;}
+.header-meta{font-size:11.5px;color:var(--ink3);margin-top:6px;}
+.header-meta span{margin-right:18px;}
+.kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:28px;}
+.kpi{background:var(--white);border:1px solid var(--rule);border-radius:6px;padding:16px 18px;}
+.kpi-label{font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--ink3);}
+.kpi-val{font-size:24px;font-weight:700;margin-top:4px;line-height:1;}
+.kpi-sub{font-size:11px;color:var(--ink3);margin-top:4px;}
+.kpi.ct .kpi-val{color:var(--teal)}.kpi.cr .kpi-val{color:var(--rose)}.kpi.ca .kpi-val{color:var(--amber);}
+.tab-bar{display:flex;gap:0;border-bottom:2px solid var(--rule);margin-bottom:24px;flex-wrap:wrap;}
+.tab-btn{padding:10px 20px;font-size:12.5px;font-weight:600;cursor:pointer;color:var(--ink3);background:none;border:none;border-bottom:2px solid transparent;margin-bottom:-2px;transition:color .15s,border-color .15s;}
+.tab-btn:hover{color:var(--navy)}.tab-btn.active{color:var(--navy);border-bottom-color:var(--teal);}
+.tab-pane{display:none}.tab-pane.active{display:block;}
+.panel{background:var(--white);border:1px solid var(--rule);border-radius:8px;padding:24px;margin-bottom:20px;}
+.panel-title{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:4px;}
+.panel-sub{font-size:12px;color:var(--ink3);margin-bottom:18px;}
+.chart-wrap{position:relative;width:100%;height:320px;}
+.legend{display:flex;gap:18px;flex-wrap:wrap;margin-bottom:12px;}
+.leg-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink2);}
+.leg-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0;}
+.decomp-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+.dcard{border-radius:8px;padding:16px 18px;}
+.dcard-val{font-size:22px;font-weight:700;}.dcard-lbl{font-size:12px;font-weight:600;margin-top:4px;}.dcard-sub{font-size:11px;margin-top:2px;opacity:.75;}
+.mover-hdr,.mover-row{display:grid;grid-template-columns:minmax(0,220px) 1fr 100px 100px;align-items:center;gap:12px;padding:7px 0;font-size:12.5px;}
+.mover-hdr{font-size:10.5px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.6px;border-bottom:2px solid var(--rule);padding-bottom:8px;}
+.mover-row{border-bottom:1px solid var(--rule)}.mover-row:last-child{border-bottom:none;}
+.bar-wrap{background:var(--grey-l);border-radius:3px;height:8px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:3px;}.bar-line{display:flex;align-items:center;gap:8px;}
+.chg-val{font-size:12px;font-weight:700;min-width:90px;text-align:right;}.num-cell{font-size:12px;color:var(--ink3);text-align:right;}.pname{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.cover-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.cover-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;}
+.cscard{border-radius:6px;padding:12px 14px;}.cscard-val{font-size:20px;font-weight:700;}.cscard-lbl{font-size:11px;margin-top:3px;}
+.excess-hdr,.excess-row{display:grid;grid-template-columns:minmax(0,1fr) 60px 70px 90px;align-items:center;gap:10px;padding:7px 0;font-size:12px;}
+.excess-hdr{font-size:10.5px;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.6px;border-bottom:2px solid var(--rule);}
+.excess-row{border-bottom:1px solid var(--rule)}.excess-row:last-child{border-bottom:none;}
+.mc-pill{display:inline-block;font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;}
+.insight{background:var(--white);border:1px solid var(--rule);border-left:4px solid var(--teal);border-radius:0 8px 8px 0;padding:16px 20px;margin-bottom:14px;}
+.insight-head{font-size:13px;font-weight:700;color:var(--navy);margin-bottom:6px;}
+.insight-body{font-size:12.5px;color:var(--ink2);line-height:1.7;}
+.insight.warn{border-left-color:var(--amber)}.insight.good{border-left-color:var(--sage)}.insight.info{border-left-color:var(--blue);}
+.badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;margin-right:6px;vertical-align:middle;}
+.badge-new{background:var(--sage-l);color:var(--sage)}.badge-grow{background:var(--blue-l);color:var(--blue)}.badge-disc{background:var(--rose-l);color:var(--rose)}.badge-warn{background:var(--amber-l);color:var(--amber);}
+.footer{font-size:11px;color:var(--ink3);border-top:1px solid var(--rule);padding-top:16px;margin-top:32px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+@media(max-width:800px){.kpi-row,.decomp-grid{grid-template-columns:repeat(2,1fr)}.cover-grid,.cover-summary{grid-template-columns:1fr}.mover-hdr,.mover-row{grid-template-columns:minmax(0,1fr) 1fr 80px}.mover-hdr :last-child,.mover-row :last-child{display:none}}
+</style>
+</head>
+<body>
+<div class="shell">
+<header class="header">
+  <div class="wordmark">Fusion Leather World</div>
+  <h1>Chemical Stock Dashboard</h1>
+  <div class="header-meta">
+    <span>Period: January 2025 – June 2026 (18 months)</span>
+    <span>Definitive product names applied</span>
+    <span>Usage averages: Feb–Apr 2026</span>
+    <span>Data as at 30 June 2026</span>
+  </div>
+</header>
+
+<div class="kpi-row">
+  <div class="kpi"><div class="kpi-label">Jan 2025 stock</div><div class="kpi-val">R7.13M</div><div class="kpi-sub">Opening position</div></div>
+  <div class="kpi ct"><div class="kpi-label">Jun 2026 stock</div><div class="kpi-val">R16.24M</div><div class="kpi-sub">+R9.1M / +128% growth</div></div>
+  <div class="kpi cr"><div class="kpi-label">Excess stock</div><div class="kpi-val">R6.41M</div><div class="kpi-sub">39.5% above 2-month policy</div></div>
+  <div class="kpi ca"><div class="kpi-label">Products &gt;2m cover</div><div class="kpi-val">55</div><div class="kpi-sub">of 159 products with Jun stock</div></div>
+  <div class="kpi"><div class="kpi-label">New products added</div><div class="kpi-val">179</div><div class="kpi-sub">+R6.14M to holding value</div></div>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="showTab('trend',this)">Monthly Trend</button>
+  <button class="tab-btn" onclick="showTab('decomp',this)">What Drove It</button>
+  <button class="tab-btn" onclick="showTab('movers',this)">Top Movers</button>
+  <button class="tab-btn" onclick="showTab('cover',this)">Months of Cover</button>
+  <button class="tab-btn" onclick="showTab('notes',this)">Production Notes</button>
+</div>
+
+<!-- TREND -->
+<div id="tab-trend" class="tab-pane active">
+  <div class="panel">
+    <div class="panel-title">Total stock value — monthly (Jan 2025 – Jun 2026)</div>
+    <div class="panel-sub">End-of-month stock holdings in Rand</div>
+    <div class="chart-wrap"><canvas id="trendChart"></canvas></div>
+  </div>
+  <div class="panel" style="font-size:12.5px;color:var(--ink2);line-height:1.8">
+    Stock held broadly flat R7–10M through H1 2025, then broke sharply upward from July. It crossed <strong>R12.4M by September 2025</strong>, settled in an R13–15.5M band through early 2026, and reached a new peak of <strong>R16.24M in June 2026</strong>. The June spike was driven primarily by a large APU Adhesive and ADH Hardener D purchase (~8,000 units added in one month).
+  </div>
+</div>
+
+<!-- DECOMP -->
+<div id="tab-decomp" class="tab-pane">
+  <div class="decomp-grid">
+    <div class="dcard" style="background:var(--sage-l)"><div class="dcard-val" style="color:var(--sage)">+R6.14M</div><div class="dcard-lbl" style="color:var(--sage)">New products</div><div class="dcard-sub" style="color:var(--sage)">179 lines added since Jan 2025</div></div>
+    <div class="dcard" style="background:var(--blue-l)"><div class="dcard-val" style="color:var(--blue)">+R5.72M</div><div class="dcard-lbl" style="color:var(--blue)">Existing — growing</div><div class="dcard-sub" style="color:var(--blue)">32 lines increased in value</div></div>
+    <div class="dcard" style="background:var(--rose-l)"><div class="dcard-val" style="color:var(--rose)">−R1.57M</div><div class="dcard-lbl" style="color:var(--rose)">Discontinued</div><div class="dcard-sub" style="color:var(--rose)">49 lines run to zero by Jun 2026</div></div>
+    <div class="dcard" style="background:var(--grey-l)"><div class="dcard-val" style="color:var(--ink2)">−R1.18M</div><div class="dcard-lbl" style="color:var(--ink2)">Stable / decreased</div><div class="dcard-sub" style="color:var(--ink2)">31 lines reduced over period</div></div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">Stacked composition by category — monthly</div>
+    <div class="legend">
+      <div class="leg-item"><div class="leg-dot" style="background:rgba(58,99,73,.7)"></div>New products</div>
+      <div class="leg-item"><div class="leg-dot" style="background:rgba(30,95,168,.6)"></div>Growing existing</div>
+      <div class="leg-item"><div class="leg-dot" style="background:rgba(139,38,53,.5)"></div>Discontinued</div>
+      <div class="leg-item"><div class="leg-dot" style="background:rgba(136,136,168,.45)"></div>Stable / decreased</div>
+    </div>
+    <div class="chart-wrap"><canvas id="decompChart"></canvas></div>
+  </div>
+</div>
+
+<!-- MOVERS -->
+<div id="tab-movers" class="tab-pane">
+  <div class="panel">
+    <div class="panel-title">Top individual products by value change — Jan 2025 to Jun 2026</div>
+    <div class="legend" style="margin-bottom:14px">
+      <div class="leg-item"><div class="leg-dot" style="background:var(--sage)"></div>New line</div>
+      <div class="leg-item"><div class="leg-dot" style="background:var(--blue)"></div>Existing grew</div>
+      <div class="leg-item"><div class="leg-dot" style="background:var(--rose)"></div>Discontinued</div>
+      <div class="leg-item"><div class="leg-dot" style="background:var(--ink3)"></div>Stable declined</div>
+    </div>
+    <div class="mover-hdr"><span>Product</span><span>Change</span><span>Jan 2025</span><span>Jun 2026</span></div>
+    <div id="movers-list"></div>
+  </div>
+</div>
+
+<!-- MONTHS OF COVER -->
+<div id="tab-cover" class="tab-pane">
+  <div class="cover-summary">
+    <div class="cscard" style="background:var(--rose-l)"><div class="cscard-val" style="color:var(--rose)">R6.41M</div><div class="cscard-lbl" style="color:var(--rose)">Total excess (>2m policy)</div></div>
+    <div class="cscard" style="background:var(--amber-l)"><div class="cscard-val" style="color:var(--amber)">55</div><div class="cscard-lbl" style="color:var(--amber)">Products over 2-month target</div></div>
+    <div class="cscard" style="background:var(--sage-l)"><div class="cscard-val" style="color:var(--sage)">53</div><div class="cscard-lbl" style="color:var(--sage)">Within 2-month target</div></div>
+    <div class="cscard" style="background:var(--grey-l)"><div class="cscard-val" style="color:var(--ink2)">51</div><div class="cscard-lbl" style="color:var(--ink2)">In stock — no usage match</div></div>
+    <div class="cscard" style="background:var(--blue-l)"><div class="cscard-val" style="color:var(--blue)">39.5%</div><div class="cscard-lbl" style="color:var(--blue)">Excess as % of total stock</div></div>
+    <div class="cscard" style="background:var(--white);border:1px solid var(--rule)"><div class="cscard-val" style="color:var(--ink)">Feb–Apr 26</div><div class="cscard-lbl" style="color:var(--ink3)">Usage avg period (most recent)</div></div>
+  </div>
+  <div class="cover-grid">
+    <div class="panel">
+      <div class="panel-title">Cover band distribution — June 2026</div>
+      <div class="panel-sub">Number of products in each cover band</div>
+      <div class="chart-wrap" style="height:260px"><canvas id="bandChart"></canvas></div>
+    </div>
+    <div class="panel">
+      <div class="panel-title">Top 10 products by excess value</div>
+      <div class="panel-sub">Stock above 2-month policy — Jun 2026</div>
+      <div class="excess-hdr"><span>Product</span><span style="text-align:right">Cover</span><span style="text-align:right">Avg/mth</span><span style="text-align:right">Excess (R)</span></div>
+      <div id="excess-list"></div>
+    </div>
+  </div>
+  <div class="panel">
+    <div class="panel-title">Excess value by product — top 10</div>
+    <div class="panel-sub">Sorted by excess value; colour indicates severity of overstocking</div>
+    <div class="chart-wrap" style="height:320px"><canvas id="excessChart"></canvas></div>
+  </div>
+</div>
+
+<!-- NOTES -->
+<div id="tab-notes" class="tab-pane">
+  <div class="insight warn">
+    <div class="insight-head"><span class="badge badge-grow">Growing</span>PN 110 — plateaued at ~19,000–20,000 kg since March 2026</div>
+    <div class="insight-body">Largest single value contributor (+R1.31M over the period). The build ran Sep 2025 (3,600kg) → Mar 2026 (19,800kg) and has held flat since. At ~R71.21/kg, this represents significant tied-up capital. Confirm with production whether ~19,000kg is the intended holding level and what monthly consumption justifies it.</div>
+  </div>
+  <div class="insight warn">
+    <div class="insight-head"><span class="badge badge-grow">Growing</span>APU Adhesive — sawtooth purchasing, Jun 2026 spike to R1.69M (15,000 units)</div>
+    <div class="insight-body">Large bulk purchase in June added ~8,000 units. Current months-of-cover is ~3.0m — just above the 2-month policy with R563k excess. Its pattern is erratic: peaked at ~18,000 units (Oct 2025), drew to 4,000 by Feb 2026, now rebuilt. ADH Hardener D moves in tandem at 5.1 months cover (R519k excess). Review whether bulk discounts justify carrying cost vs a smoother ordering cycle.</div>
+  </div>
+  <div class="insight warn">
+    <div class="insight-head"><span class="badge badge-warn">High Cover</span>OP 034, WI 060, FS 002 / FS 0025 — very high months of cover</div>
+    <div class="insight-body">OP 034 sits at 28.7 months cover (R662k excess) — 7,740 units vs 270/month average. WI 060 at 30 months (R243k excess). FS 002/FS 0025 at 29 months (R266k excess). These three products alone account for over R1.1M in excess stock against low monthly throughput. If usage has declined or these are being substituted, de-stocking now prevents further accumulation.</div>
+  </div>
+  <div class="insight">
+    <div class="insight-head"><span class="badge badge-new">New line</span>Mid-2025 cluster — embedded R6.14M block</div>
+    <div class="insight-body">The finishing/adhesive range introduced mid-2025 (PLUS TOP 600, MELIO PROMUL C-83, MELIO P-4893, NERO NBE U.CONC. (420%), AQUALENE AKU, RU 400, MELIO RESIN 719) is now a permanent R6.14M of the stock holding. MELIO RESIN 719 holds ~9,000kg at 7 months cover — worth reviewing order size vs usage. The cluster is the single biggest structural reason stock is higher than early 2025.</div>
+  </div>
+  <div class="insight good">
+    <div class="insight-head"><span class="badge badge-disc">Discontinued</span>Run-down block fully consumed — R1.57M released</div>
+    <div class="insight-body">All 49 discontinued lines (including RU 175, BRUNO EURODERM DRB, PLUS OIL 07, TANCURT range) reached zero by June 2026, releasing R1.57M of working capital. The stock base is now cleaner. Remaining work: 51 products with no usage match and 64 products with unconfirmed names (red) in the analysis workbooks — resolving name alignment will move many into the main coverage calculation.</div>
+  </div>
+  <div class="insight info">
+    <div class="insight-head"><span class="badge badge-warn">Review</span>51 products in stock with no usage record</div>
+    <div class="insight-body">51 products have June 2026 stock but no matching usage file entry, so their months-of-cover cannot be calculated. Some may be new products not yet in usage; others may have purchasing but zero consumption to date. Additionally, 64 products still carry unconfirmed names (red cells) which may be blocking correct matching. Completing the name alignment exercise will resolve the majority of these gaps.</div>
+  </div>
+</div>
+
+<div class="footer">
+  <span>Fusion Leather World · Chemical Stock Analysis Dashboard</span>
+  <span>Source: Stock_on_hand_overtime_stacked.xlsx · Usages.xlsx · Stock_NEW_NAME.xlsx · Data period Jan 2025 – Jun 2026</span>
+</div>
+</div>
+
+<script>
+const months=['Jan-25','Feb-25','Mar-25','Apr-25','May-25','Jun-25','Jul-25','Aug-25','Sep-25','Oct-25','Nov-25','Dec-25','Jan-26','Feb-26','Mar-26','Apr-26','May-26','Jun-26'];
+const totals=[7128592,8123993,7425517,7122973,7587630,9727634,11133315,10316774,12409950,14206066,14264193,14810886,14244239,13239215,15564722,15042150,15336599,16238563];
+const newV=[0,998401,874191,837258,1651735,2168342,3728219,3474103,5385646,5406541,5950845,5780848,5908130,5802211,6645643,6548949,6451703,6144602];
+const growV=[2440367,2626303,2350275,2322943,2327988,2797869,3191028,3560347,4113231,5931851,5733695,5483484,5245918,5392948,6893570,6641475,6869498,8155704];
+const discV=[1574456,1571454,1443380,1222566,1062812,1641128,1587684,1158888,832426,707586,391626,565392,473945,32729,71553,42354,37174,0];
+const stblV=[3113768,2927835,2757670,2740205,2545095,3120295,2626384,2123436,2078647,2160088,2188027,2981161,2616246,2011327,1953955,1809373,1978224,1938257];
+const movers=[
+  {name:'PN 110',early:53063,late:1367232,change:1314169,type:'growth'},
+  {name:'APU ADHESIVE',early:466900,late:1689607,change:1222707,type:'growth'},
+  {name:'ADH HARDENER D',early:51518,late:854825,change:803307,type:'growth'},
+  {name:'MELIO RESIN 719',early:0,late:589680,change:589680,type:'new'},
+  {name:'MELIO PROMUL C-83',early:0,late:484950,change:484950,type:'new'},
+  {name:'PLUS TOP 600',early:0,late:445920,change:445920,type:'new'},
+  {name:'NERO NBE U.CONC. (420%)',early:0,late:346297,change:346297,type:'new'},
+  {name:'MELIO P-4893',early:0,late:323940,change:323940,type:'new'},
+  {name:'PF 4125',early:205455,late:501416,change:295961,type:'growth'},
+  {name:'PL 433',early:23343,late:291792,change:268449,type:'growth'},
+  {name:'AQUALENE AKU',early:0,late:240252,change:240252,type:'new'},
+  {name:'WI 060',early:28107,late:260757,change:232650,type:'growth'},
+  {name:'FS 002 / FS 0025',early:59175,late:286012,change:226838,type:'growth'},
+  {name:'RU 400',early:0,late:223893,change:223893,type:'new'},
+  {name:'WF 179',early:32924,late:229796,change:196872,type:'growth'},
+  {name:'WS 640',early:1072977,late:749706,change:-323271,type:'stable'},
+  {name:'RU 175',early:305640,late:0,change:-305640,type:'disc'},
+  {name:'BRUNO EURODERM DRB',early:163534,late:0,change:-163534,type:'disc'},
+  {name:'PLUS OIL 07',early:162000,late:0,change:-162000,type:'disc'},
+  {name:'TANCURT M 507',early:213958,late:69410,change:-144548,type:'stable'},
+];
+const topExcess=[
+  {product:'OP 034',mc:28.7,avg3:270,exc_v:662148},
+  {product:'WS 640',mc:12.2,avg3:473,exc_v:626917},
+  {product:'APU ADHESIVE',mc:3.0,avg3:5000,exc_v:563202},
+  {product:'ADH HARDENER D',mc:5.1,avg3:265,exc_v:519227},
+  {product:'MELIO RESIN 719',mc:7.0,avg3:1280,exc_v:492982},
+  {product:'PF 4125',mc:7.8,avg3:760,exc_v:372018},
+  {product:'FS 002 / FS 0025',mc:29.0,avg3:50,exc_v:266288},
+  {product:'WI 060',mc:30.0,avg3:200,exc_v:243373},
+  {product:'AQUALENE AKU',mc:20.0,avg3:12,exc_v:216227},
+  {product:'LS 472/482',mc:27.5,avg3:42,exc_v:188053},
+];
+const bandLabels=['<=1 month','1-2 months','2-4 months','4-6 months','>6 months','No usage'];
+const bandCounts=[28,25,26,11,18,51];
+const bandColors=['#3A6349','#5A9472','#B5510A','#8B2635','#5C1523','#aaa'];
+
+function fmt(n){return 'R'+Math.abs(Math.round(n)).toLocaleString('en-ZA');}
+function fmtK(n){return n>=1000000?'R'+(n/1000000).toFixed(2)+'M':'R'+(n/1000).toFixed(0)+'k';}
+const tc={growth:'#1E5FA8',new:'#3A6349',disc:'#8B2635',stable:'#888'};
+
+function showTab(t,btn){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tab-'+t).classList.add('active');
+}
+
+(function(){
+  const max=Math.max(...movers.map(d=>Math.abs(d.change)));
+  document.getElementById('movers-list').innerHTML=movers.map(d=>{
+    const pct=(Math.abs(d.change)/max*100).toFixed(1);const col=tc[d.type];const sign=d.change>=0?'+':'−';
+    return`<div class="mover-row"><span class="pname">${d.name}</span><div class="bar-line"><div class="bar-wrap" style="flex:1"><div class="bar-fill" style="width:${pct}%;background:${col}"></div></div><span class="chg-val" style="color:${col}">${sign}${fmtK(d.change)}</span></div><span class="num-cell">${d.early>0?fmtK(d.early):'—'}</span><span class="num-cell">${d.late>0?fmtK(d.late):'—'}</span></div>`;
+  }).join('');
+})();
+
+(function(){
+  function mcCol(mc){return mc>12?{bg:'#F9E8EB',tc:'#8B2635'}:mc>4?{bg:'#FDF0E4',tc:'#B5510A'}:{bg:'#FFF3DC',tc:'#7A4A00'};}
+  document.getElementById('excess-list').innerHTML=topExcess.map(r=>{
+    const {bg,tc:c}=mcCol(r.mc);
+    return`<div class="excess-row"><span style="font-weight:600;font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.product}</span><span style="text-align:right"><span class="mc-pill" style="background:${bg};color:${c}">${r.mc}m</span></span><span style="text-align:right;font-size:11px;color:var(--ink3)">${r.avg3.toLocaleString('en-ZA')}</span><span style="text-align:right;font-weight:700;color:var(--rose)">${fmt(r.exc_v)}</span></div>`;
+  }).join('');
+})();
+
+Chart.defaults.font.family="'Segoe UI',system-ui,sans-serif";
+Chart.defaults.font.size=11;
+
+new Chart(document.getElementById('trendChart'),{type:'line',data:{labels:months,datasets:[{label:'Stock value',data:totals,borderColor:'#0D7377',backgroundColor:'rgba(13,115,119,.07)',borderWidth:2.5,pointRadius:3,pointBackgroundColor:'#0D7377',fill:true,tension:0.3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>'R'+Math.round(ctx.parsed.y).toLocaleString('en-ZA')}}},scales:{x:{ticks:{maxRotation:45,autoSkip:false},grid:{display:false}},y:{ticks:{callback:v=>'R'+(v/1000000).toFixed(1)+'M'},grid:{color:'rgba(0,0,0,.06)'}}}}});
+
+new Chart(document.getElementById('decompChart'),{type:'bar',data:{labels:months,datasets:[{label:'New products',data:newV,backgroundColor:'rgba(58,99,73,.7)',stack:'s'},{label:'Growing existing',data:growV,backgroundColor:'rgba(30,95,168,.6)',stack:'s'},{label:'Discontinued',data:discV,backgroundColor:'rgba(139,38,53,.5)',stack:'s'},{label:'Stable/decreased',data:stblV,backgroundColor:'rgba(136,136,168,.45)',stack:'s'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': R'+(ctx.parsed.y/1000000).toFixed(2)+'M'}}},scales:{x:{stacked:true,ticks:{maxRotation:45,autoSkip:false},grid:{display:false}},y:{stacked:true,ticks:{callback:v=>'R'+(v/1000000).toFixed(1)+'M'},grid:{color:'rgba(0,0,0,.06)'}}}}});
+
+new Chart(document.getElementById('bandChart'),{type:'bar',data:{labels:bandLabels,datasets:[{label:'Products',data:bandCounts,backgroundColor:bandColors,borderRadius:4,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.parsed.y+' products'}}},scales:{x:{grid:{display:false}},y:{ticks:{stepSize:5},grid:{color:'rgba(0,0,0,.06)'}}}}});
+
+new Chart(document.getElementById('excessChart'),{type:'bar',data:{labels:topExcess.map(r=>r.product),datasets:[{label:'Excess value (R)',data:topExcess.map(r=>r.exc_v),backgroundColor:topExcess.map(r=>r.mc>10?'#8B2635':r.mc>4?'#B5510A':'#D4900A'),borderRadius:4,borderSkipped:false}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>'R'+Math.round(ctx.parsed.x).toLocaleString('en-ZA')}}},scales:{x:{ticks:{callback:v=>'R'+(v/1000).toFixed(0)+'k'},grid:{color:'rgba(0,0,0,.06)'}},y:{grid:{display:false}}}}});
+</script>
+</body>
+</html>
