@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Master Sales Dashboard | Fusion Leather World</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="master-data.js"></script>
+<style>
+  :root{
+    --bone:#E7E0CC; --paper:#F4EFE1; --ink:#26201A; --ink-soft:#5B5346;
+    --rust:#A65A34; --rust-deep:#7E4527; --vat:#3F5240; --brass:#AD8636; --brick:#8C3B32;
+    --line:#C9BE9E; --radius:3px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--bone); color:var(--ink); font-family:'Work Sans', sans-serif; -webkit-font-smoothing:antialiased; padding-bottom:60px;}
+  .wrap{max-width:1360px; margin:0 auto; padding:0 16px;}
+  header{padding:24px 0 0;}
+  .eyebrow{font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--rust-deep); font-weight:600;}
+  h1{font-family:'Fraunces', serif; font-weight:600; font-size:clamp(26px,4.6vw,38px); margin:6px 0 4px; letter-spacing:-.01em;}
+  .sub{font-size:13.5px; color:var(--ink-soft); margin-bottom:18px;}
+
+  .seam{position:relative; height:1px; margin:22px 0; background-image:repeating-linear-gradient(to right, var(--line) 0, var(--line) 6px, transparent 6px, transparent 13px);}
+  .seam::before,.seam::after{content:''; position:absolute; top:-3px; width:1px; height:7px; background:var(--line);}
+  .seam::before{left:0;} .seam::after{right:0;}
+
+  .layout{display:flex; flex-direction:column; gap:16px;}
+
+  /* ---- Slicer bar (top, horizontal, wraps responsively) ---- */
+  .slicers{display:flex; flex-wrap:wrap; gap:10px;}
+  .slicer{flex:1 1 170px; min-width:150px; max-width:220px; background:var(--paper); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden;}
+  .slicer h3{
+    font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--ink-soft); margin:0; padding:9px 10px; border-bottom:1px solid var(--line);
+    display:flex; justify-content:space-between; align-items:center;
+  }
+  .slicer-actions{display:flex; gap:8px;}
+  .slicer h3 button{
+    font-family:'IBM Plex Mono', monospace; font-size:10px; background:none; border:none; color:var(--rust-deep);
+    cursor:pointer; padding:0; text-decoration:underline;
+  }
+  .slicer-list{max-height:150px; overflow-y:auto; padding:4px;}
+  .slicer-list label{
+    display:flex; align-items:center; gap:6px; font-size:12.5px; padding:4px 6px; border-radius:2px; cursor:pointer;
+  }
+  .slicer-list label:hover{background:var(--bone);}
+  .slicer-list input{accent-color:var(--rust);}
+  .cust-search{width:100%; border:none; border-bottom:1px solid var(--line); background:var(--paper); padding:8px 10px; font-size:12.5px; font-family:'Work Sans',sans-serif;}
+  .cust-search:focus{outline:none; background:var(--bone);}
+
+  .panel{background:var(--paper); border:1px solid var(--line); border-radius:var(--radius); padding:15px; margin-bottom:14px;}
+  .panel h2{font-family:'Fraunces', serif; font-weight:600; font-size:17px; margin:0 0 2px;}
+  .panel .panel-note{font-size:12px; color:var(--ink-soft); margin-bottom:12px;}
+
+  details{background:var(--paper); border:1px solid var(--line); border-radius:var(--radius);}
+  summary{cursor:pointer; padding:12px 15px; font-family:'IBM Plex Mono', monospace; font-size:11.5px; letter-spacing:.04em; text-transform:uppercase; color:var(--ink-soft); list-style:none; display:flex; justify-content:space-between;}
+  summary::-webkit-details-marker{display:none;}
+  summary::after{content:'+'; font-family:'IBM Plex Mono', monospace; font-size:15px; color:var(--rust-deep);}
+  details[open] summary::after{content:'–';}
+  .details-body{padding:0 15px 15px; font-size:13px;}
+  .code-chip{display:inline-block; font-family:'IBM Plex Mono', monospace; font-size:11.5px; background:var(--bone); border:1px solid var(--line); border-radius:2px; padding:2px 6px; margin:3px 4px 0 0;}
+
+  .data-table{width:100%; border-collapse:collapse; font-family:'IBM Plex Mono', monospace; font-size:12px; margin-top:4px;}
+  .data-table th{text-align:left; padding:6px 8px; border-bottom:2px solid var(--ink); color:var(--ink-soft); font-weight:600; letter-spacing:.02em;}
+  .data-table th.yr{text-align:center; background:var(--bone); border-left:2px solid var(--ink);}
+  .data-table th.num, .data-table td.num{text-align:right;}
+  .data-table td{padding:5px 8px; border-bottom:1px solid var(--line);}
+  .data-table td.yr-start, .data-table th.num.yr-start{border-left:2px solid var(--ink);}
+  .data-table tbody tr:hover{background:var(--bone);}
+  .data-table tbody tr{cursor:pointer;}
+  .data-table tfoot td{padding:6px 8px; border-top:2px solid var(--ink); font-weight:700;}
+  .table-wrap{overflow-x:auto; max-height:520px; overflow-y:auto;}
+
+  footer{margin-top:26px; font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--ink-soft); text-align:center;}
+  button:focus-visible, input:focus-visible, summary:focus-visible{outline:2px solid var(--rust); outline-offset:2px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Fusion Leather World · All Regions</div>
+    <h1>Master Sales Dashboard</h1>
+    <div class="sub">FY25/26 – FY26/27 to date (1 March 2025 – 31 July 2026). Numbers only — every table shows DM2, Avg Price and Rand value. Tick a Fiscal Year box to narrow to one year; leave both unticked (or ticked) to compare them side by side. Every filter updates every table at once.</div>
+  </header>
+
+  <div class="layout">
+    <div class="slicers">
+      <div class="slicer">
+        <h3>Fiscal Year <span class="slicer-actions"><button id="allFY">all</button><button id="clearFY">clear</button></span></h3>
+        <div class="slicer-list" id="fySlicer"></div>
+      </div>
+      <div class="slicer">
+        <h3>Fiscal Month <span class="slicer-actions"><button id="allFM">all</button><button id="clearFM">clear</button></span></h3>
+        <div class="slicer-list" id="fmSlicer"></div>
+      </div>
+      <div class="slicer">
+        <h3>Week (ISO) <span class="slicer-actions"><button id="allWk">all</button><button id="clearWk">clear</button></span></h3>
+        <div class="slicer-list" id="wkSlicer"></div>
+      </div>
+      <div class="slicer">
+        <h3>Region <span class="slicer-actions"><button id="allReg">all</button><button id="clearReg">clear</button></span></h3>
+        <div class="slicer-list" id="regSlicer"></div>
+      </div>
+      <div class="slicer">
+        <h3>Category <span class="slicer-actions"><button id="allCat">all</button><button id="clearCat">clear</button></span></h3>
+        <div class="slicer-list" id="catSlicer"></div>
+      </div>
+      <div class="slicer">
+        <h3>Customer <span class="slicer-actions"><button id="allCust">all</button><button id="clearCust">clear</button></span></h3>
+        <input class="cust-search" id="custSearch" placeholder="Search customer…">
+        <div class="slicer-list" id="custSlicer"></div>
+      </div>
+    </div>
+
+    <div class="main">
+      <div class="panel">
+        <h2>Summary</h2>
+        <div class="panel-note">Reflects every filter above, including Fiscal Year.</div>
+        <div class="table-wrap"><table class="data-table" id="summaryTable"></table></div>
+      </div>
+
+      <div class="seam"></div>
+
+      <div class="panel">
+        <h2>Sales by fiscal month</h2>
+        <div class="panel-note">March → February. Tick specific months to narrow the rows shown.</div>
+        <div class="table-wrap"><table class="data-table" id="monthTable"></table></div>
+      </div>
+
+      <div class="panel">
+        <h2>Sales by region</h2>
+        <div class="panel-note">Click a row to filter the page to that region.</div>
+        <div class="table-wrap"><table class="data-table" id="regionTable"></table></div>
+      </div>
+
+      <div class="panel">
+        <h2>Sales by category</h2>
+        <div class="panel-note">Click a row to filter the page to that category.</div>
+        <div class="table-wrap"><table class="data-table" id="categoryTable"></table></div>
+      </div>
+
+      <div class="panel">
+        <h2>Top 15 customers</h2>
+        <div class="panel-note">Ranked by combined Rand value across the fiscal years shown. Click a row to filter the page to that customer.</div>
+        <div class="table-wrap"><table class="data-table" id="topTable"></table></div>
+      </div>
+
+      <details id="dataQuality">
+        <summary>Data quality — unresolved codes</summary>
+        <div class="details-body" id="dqBody">Loading…</div>
+      </details>
+    </div>
+  </div>
+
+  <footer>Fusion Leather World — all regions, all categories — generated from Pastel exports</footer>
+</div>
+
+<script>
+(function(){
+  const DATA = (window.MASTER_SALES_DATA || []).filter(d => !d.tr && d.cat !== 'Uncategorized'); // leather sales only: transport and non-product entries excluded from every view
+  const FISCAL_MONTHS = ['March','April','May','June','July','August','September','October','November','December','January','February'];
+
+  // ---- Filter state ----
+  const state = { fy:new Set(), fm:new Set(), wk:new Set(), reg:new Set(), cat:new Set(), cust:new Set() };
+
+  function unique(key){ return [...new Set(DATA.map(d=>d[key]).filter(Boolean))]; }
+
+  const fyOptions = unique('fy').sort();
+  const regOptions = unique('reg').sort();
+  const catOptions = unique('cat').sort();
+  const weekOptions = unique('wk').sort((a,b)=>a-b);
+  const custMap = new Map();
+  DATA.forEach(d => { if (d.code && (!custMap.has(d.code) || (!custMap.get(d.code) && d.name))) custMap.set(d.code, d.name); });
+  const custOptions = [...custMap.entries()].map(([code,name])=>({code, name:name||code})).sort((a,b)=>a.name.localeCompare(b.name));
+
+  function passesFilters(d, exceptKeys){
+    const skip = new Set(Array.isArray(exceptKeys) ? exceptKeys : [exceptKeys]);
+    if (!skip.has('fy') && state.fy.size && !state.fy.has(d.fy)) return false;
+    if (!skip.has('fm') && state.fm.size && !state.fm.has(d.fm)) return false;
+    if (!skip.has('wk') && state.wk.size && !state.wk.has(d.wk)) return false;
+    if (!skip.has('reg') && state.reg.size && !state.reg.has(d.reg)) return false;
+    if (!skip.has('cat') && state.cat.size && !state.cat.has(d.cat)) return false;
+    if (!skip.has('cust') && state.cust.size && !state.cust.has(d.code)) return false;
+    return true;
+  }
+
+  function filteredData(){ return DATA.filter(d => passesFilters(d, null)); }
+
+  // ---- Slicer building ----
+  function buildSlicer(containerId, options, key, labelFn){
+    const el = document.getElementById(containerId);
+    el.innerHTML = '';
+    options.forEach(opt => {
+      const value = typeof opt === 'object' ? opt.code : opt;
+      const label = labelFn ? labelFn(opt) : opt;
+      const row = document.createElement('label');
+      const cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.value = value;
+      cb.checked = state[key].has(value);
+      cb.addEventListener('change', () => {
+        if (cb.checked) state[key].add(value); else state[key].delete(value);
+        render();
+      });
+      const span = document.createElement('span');
+      span.textContent = label;
+      row.appendChild(cb);
+      row.appendChild(span);
+      el.appendChild(row);
+    });
+  }
+
+  function refreshSlicers(){
+    buildSlicer('fySlicer', fyOptions, 'fy');
+    buildSlicer('fmSlicer', [...Array(12).keys()].map(i=>i+1), 'fm', m => FISCAL_MONTHS[m-1]);
+    buildSlicer('wkSlicer', weekOptions, 'wk', w => 'Week '+w);
+    buildSlicer('regSlicer', regOptions, 'reg');
+    buildSlicer('catSlicer', catOptions, 'cat');
+    const search = document.getElementById('custSearch').value.trim().toLowerCase();
+    const filteredCust = search ? custOptions.filter(c => c.name.toLowerCase().includes(search) || c.code.toLowerCase().includes(search)) : custOptions;
+    buildSlicer('custSlicer', filteredCust, 'cust', c => c.name);
+  }
+
+  document.getElementById('clearFY').addEventListener('click', ()=>{state.fy.clear(); render();});
+  document.getElementById('clearFM').addEventListener('click', ()=>{state.fm.clear(); render();});
+  document.getElementById('clearWk').addEventListener('click', ()=>{state.wk.clear(); render();});
+  document.getElementById('clearReg').addEventListener('click', ()=>{state.reg.clear(); render();});
+  document.getElementById('clearCat').addEventListener('click', ()=>{state.cat.clear(); render();});
+  document.getElementById('clearCust').addEventListener('click', ()=>{state.cust.clear(); document.getElementById('custSearch').value=''; render();});
+
+  document.getElementById('allFY').addEventListener('click', ()=>{state.fy = new Set(fyOptions); render();});
+  document.getElementById('allFM').addEventListener('click', ()=>{state.fm = new Set([...Array(12).keys()].map(i=>i+1)); render();});
+  document.getElementById('allWk').addEventListener('click', ()=>{state.wk = new Set(weekOptions); render();});
+  document.getElementById('allReg').addEventListener('click', ()=>{state.reg = new Set(regOptions); render();});
+  document.getElementById('allCat').addEventListener('click', ()=>{state.cat = new Set(catOptions); render();});
+  document.getElementById('allCust').addEventListener('click', ()=>{
+    const search = document.getElementById('custSearch').value.trim().toLowerCase();
+    const visible = search ? custOptions.filter(c => c.name.toLowerCase().includes(search) || c.code.toLowerCase().includes(search)) : custOptions;
+    state.cust = new Set(visible.map(c=>c.code));
+    render();
+  });
+  document.getElementById('custSearch').addEventListener('input', refreshSlicers);
+
+  // ---- Formatting ----
+  const fmtR = n => 'R ' + Math.round(n).toLocaleString('en-ZA');
+  const fmtQty = n => Math.round(n).toLocaleString('en-ZA');
+  const fmtPrice = n => 'R ' + (isFinite(n) ? n.toFixed(2) : '0.00');
+
+  // ---- Generic "years side by side" table builder ----
+  // rowDefs: [{key, label, perYear: {fy: {dm2, sales}}}]
+  // years: sorted array of fy strings to show as column groups
+  function renderYearTable(tableId, rowDefs, years, onRowClick, isActive, showTotals){
+    const table = document.getElementById(tableId);
+    if (!years.length){ table.innerHTML = '<tbody><tr><td>No data for current filters.</td></tr></tbody>'; return; }
+    let thead = '<thead><tr><th></th>';
+    years.forEach(fy => { thead += `<th class="yr" colspan="3">${fy}</th>`; });
+    thead += '</tr><tr><th></th>';
+    years.forEach(() => { thead += '<th class="num yr-start">DM2</th><th class="num">Avg Price</th><th class="num">Value (R)</th>'; });
+    thead += '</tr></thead>';
+
+    let body = '<tbody>';
+    const totals = {};
+    years.forEach(fy => totals[fy] = {dm2:0, sales:0});
+    rowDefs.forEach(rd => {
+      const style = isActive(rd.key) ? 'style="background:var(--bone);font-weight:600;"' : '';
+      body += `<tr data-key="${rd.key}" ${style}><td>${rd.label}</td>`;
+      years.forEach(fy => {
+        const v = rd.perYear[fy] || {dm2:0, sales:0};
+        totals[fy].dm2 += v.dm2; totals[fy].sales += v.sales;
+        const avg = v.dm2 ? v.sales/v.dm2 : 0;
+        body += `<td class="num yr-start">${fmtQty(v.dm2)}</td><td class="num">${fmtPrice(avg)}</td><td class="num">${fmtR(v.sales)}</td>`;
+      });
+      body += '</tr>';
+    });
+    body += '</tbody>';
+
+    let foot = '';
+    if (showTotals){
+      foot = '<tfoot><tr><td>TOTAL</td>';
+      years.forEach(fy => {
+        const t = totals[fy];
+        const avg = t.dm2 ? t.sales/t.dm2 : 0;
+        foot += `<td class="num yr-start">${fmtQty(t.dm2)}</td><td class="num">${fmtPrice(avg)}</td><td class="num">${fmtR(t.sales)}</td>`;
+      });
+      foot += '</tr></tfoot>';
+    }
+
+    table.innerHTML = thead + body + foot;
+    table.querySelectorAll('tbody tr').forEach(tr => {
+      tr.addEventListener('click', () => onRowClick(tr.dataset.key));
+    });
+  }
+
+  function groupBy(rows, keyFn){
+    const perYear = new Map(); // key -> {fy: {dm2,sales}}
+    rows.forEach(r => {
+      if (!perYear.has(r.key)) perYear.set(r.key, {});
+      const bucket = perYear.get(r.key);
+      if (!bucket[r.fy]) bucket[r.fy] = {dm2:0, sales:0};
+      bucket[r.fy].dm2 += (r.qty||0);
+      bucket[r.fy].sales += (r.sales||0);
+    });
+    return perYear;
+  }
+
+  function toggle(set, value){ if (set.has(value)) set.delete(value); else set.add(value); }
+
+  // ---- Render ----
+  function render(){
+    refreshSlicers();
+    renderSummary();
+    renderMonthTable();
+    renderRegionTable();
+    renderCategoryTable();
+    renderTopTable();
+  }
+
+  function renderSummary(){
+    const rows = filteredData();
+    const years = [...new Set(rows.map(d=>d.fy))].sort();
+    const rowDefs = [{
+      key: 'summary', label: 'All filtered sales',
+      perYear: Object.fromEntries(years.map(fy => {
+        const rs = rows.filter(d=>d.fy===fy);
+        return [fy, {dm2: rs.reduce((s,d)=>s+(d.qty||0),0), sales: rs.reduce((s,d)=>s+(d.sales||0),0)}];
+      }))
+    }];
+    renderYearTable('summaryTable', rowDefs, years, ()=>{}, ()=>false, false);
+  }
+
+  function renderMonthTable(){
+    const base = DATA.filter(d => passesFilters(d, ['fm']));
+    const years = [...new Set(base.map(d=>d.fy))].sort();
+    const monthsToShow = state.fm.size ? [...state.fm].sort((a,b)=>a-b) : [...Array(12).keys()].map(i=>i+1);
+    const rowDefs = monthsToShow.map(m => {
+      const perYear = {};
+      years.forEach(fy => {
+        const rs = base.filter(d=>d.fm===m && d.fy===fy);
+        perYear[fy] = {dm2: rs.reduce((s,d)=>s+(d.qty||0),0), sales: rs.reduce((s,d)=>s+(d.sales||0),0)};
+      });
+      return {key:String(m), label: FISCAL_MONTHS[m-1], perYear};
+    });
+    renderYearTable('monthTable', rowDefs, years,
+      (key)=>{ toggle(state.fm, Number(key)); render(); },
+      (key)=> state.fm.has(Number(key)), true);
+  }
+
+  function renderRegionTable(){
+    const base = DATA.filter(d => passesFilters(d, ['reg']));
+    const years = [...new Set(base.map(d=>d.fy))].sort();
+    const regionsToShow = state.reg.size ? [...state.reg].sort() : [...new Set(base.map(d=>d.reg))].sort();
+    const rowDefs = regionsToShow.map(reg => {
+      const perYear = {};
+      years.forEach(fy => {
+        const rs = base.filter(d=>d.reg===reg && d.fy===fy);
+        perYear[fy] = {dm2: rs.reduce((s,d)=>s+(d.qty||0),0), sales: rs.reduce((s,d)=>s+(d.sales||0),0)};
+      });
+      return {key:reg, label:reg, perYear};
+    });
+    // sort rows by combined value, largest first
+    rowDefs.sort((a,b) => {
+      const totA = years.reduce((s,fy)=>s+(a.perYear[fy]?.sales||0),0);
+      const totB = years.reduce((s,fy)=>s+(b.perYear[fy]?.sales||0),0);
+      return totB - totA;
+    });
+    renderYearTable('regionTable', rowDefs, years,
+      (key)=>{ toggle(state.reg, key); render(); },
+      (key)=> state.reg.has(key), true);
+  }
+
+  function renderCategoryTable(){
+    const base = DATA.filter(d => passesFilters(d, ['cat']));
+    const years = [...new Set(base.map(d=>d.fy))].sort();
+    const catsToShow = state.cat.size ? [...state.cat].sort() : [...new Set(base.map(d=>d.cat))].sort();
+    const rowDefs = catsToShow.map(cat => {
+      const perYear = {};
+      years.forEach(fy => {
+        const rs = base.filter(d=>d.cat===cat && d.fy===fy);
+        perYear[fy] = {dm2: rs.reduce((s,d)=>s+(d.qty||0),0), sales: rs.reduce((s,d)=>s+(d.sales||0),0)};
+      });
+      return {key:cat, label:cat, perYear};
+    });
+    rowDefs.sort((a,b) => {
+      const totA = years.reduce((s,fy)=>s+(a.perYear[fy]?.sales||0),0);
+      const totB = years.reduce((s,fy)=>s+(b.perYear[fy]?.sales||0),0);
+      return totB - totA;
+    });
+    renderYearTable('categoryTable', rowDefs, years,
+      (key)=>{ toggle(state.cat, key); render(); },
+      (key)=> state.cat.has(key), true);
+  }
+
+  function renderTopTable(){
+    const base = DATA.filter(d => passesFilters(d, ['cust']));
+    const years = [...new Set(base.map(d=>d.fy))].sort();
+    const totals = new Map();
+    base.forEach(d => totals.set(d.code, (totals.get(d.code)||0) + (d.sales||0)));
+    const ranked = [...totals.entries()].sort((a,b)=>b[1]-a[1]).slice(0,15).map(([code])=>code);
+    const rowDefs = ranked.map(code => {
+      const perYear = {};
+      years.forEach(fy => {
+        const rs = base.filter(d=>d.code===code && d.fy===fy);
+        perYear[fy] = {dm2: rs.reduce((s,d)=>s+(d.qty||0),0), sales: rs.reduce((s,d)=>s+(d.sales||0),0)};
+      });
+      return {key:code, label: custMap.get(code)||code, perYear};
+    });
+    renderYearTable('topTable', rowDefs, years,
+      (key)=>{ toggle(state.cust, key); render(); },
+      (key)=> state.cust.has(key), false);
+  }
+
+  function renderDataQuality(){
+    const unmatched = new Map();
+    DATA.forEach(d => { if (d.code && !d.name) unmatched.set(d.code, (unmatched.get(d.code)||0)+1); });
+    const body = document.getElementById('dqBody');
+    if (!unmatched.size){ body.textContent = 'All customer codes matched.'; return; }
+    const entries = [...unmatched.entries()].sort((a,b)=>b[1]-a[1]);
+    body.innerHTML = `${entries.length} customer codes aren't in the Customer Master yet — still counted correctly in every total, just flagged for cleanup.<br><br>` +
+      entries.map(([c,n])=>`<span class="code-chip">${c} · ${n}</span>`).join('');
+  }
+
+  render();
+  renderDataQuality();
+})();
+</script>
+</body>
+</html>
